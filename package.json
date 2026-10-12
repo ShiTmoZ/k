@@ -6,6 +6,8 @@
   "scripts": {
     "start": "node server.js",
     "desktop": "electron .",
+    "tauri": "tauri",
+    "build:tauri": "tauri build",
     "build:win": "electron-builder --win portable nsis"
   },
   "keywords": [
@@ -14,11 +16,13 @@
     "dopamine",
     "habit-reversal",
     "cognitive-restructuring",
-    "anti-slop"
+    "tauri",
+    "electron"
   ],
   "author": "ShiTmoZ",
   "license": "MIT",
   "devDependencies": {
+    "@tauri-apps/cli": "^2.1.0",
     "electron": "^33.0.0",
     "electron-builder": "^25.0.0"
   },
