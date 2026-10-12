@@ -1,0 +1,45 @@
+{
+  "name": "neuroshift",
+  "version": "1.0.0",
+  "description": "NEUROSHIFT — Cognitive Rewiring & Neural Integrity Clinical Console",
+  "main": "main.js",
+  "scripts": {
+    "start": "node server.js",
+    "desktop": "electron .",
+    "build:win": "electron-builder --win portable nsis"
+  },
+  "keywords": [
+    "neuroscience",
+    "biohacking",
+    "dopamine",
+    "habit-reversal",
+    "cognitive-restructuring",
+    "anti-slop"
+  ],
+  "author": "ShiTmoZ",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^33.0.0",
+    "electron-builder": "^25.0.0"
+  },
+  "build": {
+    "appId": "com.shitmoz.neuroshift",
+    "productName": "NeuroShift",
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "target": [
+        "nsis",
+        "portable"
+      ]
+    },
+    "files": [
+      "main.js",
+      "server.js",
+      "lib/**/*",
+      "public/**/*",
+      "package.json"
+    ]
+  }
+}

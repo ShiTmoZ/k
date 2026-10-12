@@ -1,0 +1,2538 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<style>
+  /* Toast Notification */
+  .toast-container {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 10000;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    pointer-events: none;
+  }
+  .toast {
+    background: rgba(12, 18, 29, 0.95);
+    border: 1px solid rgba(0, 242, 254, 0.3);
+    backdrop-filter: blur(16px);
+    border-radius: 8px;
+    padding: 12px 18px;
+    font-size: 13px;
+    color: #fff;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    pointer-events: auto;
+    animation: toastIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    transition: opacity 0.3s, transform 0.3s;
+    font-family: 'Vazirmatn', sans-serif;
+  }
+  .toast.success { border-color: rgba(5, 213, 179, 0.5); }
+  .toast.warn { border-color: rgba(245, 158, 11, 0.5); }
+  .toast.crit { border-color: rgba(244, 63, 94, 0.5); }
+  @keyframes toastIn {
+    from { opacity: 0; transform: translateY(12px) scale(0.96); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+</style>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NEUROSHIFT — Neural Integrity Console</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --void: #030508;
+    --glass: rgba(12, 18, 29, 0.72);
+    --glass-solid: #0c121d;
+    --border: rgba(255,255,255,0.07);
+    --border-bright: rgba(255,255,255,0.13);
+    --cyan: #00f2fe;
+    --emerald: #05d5b3;
+    --amber: #f59e0b;
+    --rose: #f43f5e;
+    --text-primary: rgba(255,255,255,0.92);
+    --text-secondary: rgba(255,255,255,0.48);
+    --text-muted: rgba(255,255,255,0.24);
+    --glow-cyan: rgba(0,242,254,0.15);
+    --glow-emerald: rgba(5,213,179,0.12);
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--void);
+    color: var(--text-primary);
+    font-family: 'Vazirmatn', system-ui, sans-serif;
+    font-weight: 400;
+    line-height: 1.6;
+    overflow-x: hidden;
+    min-height: 100vh;
+  }
+
+  /* ── SCANLINE OVERLAY ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0,0,0,0.04) 2px,
+      rgba(0,0,0,0.04) 4px
+    );
+    pointer-events: none;
+    z-index: 9999;
+  }
+
+  /* ── SYNAPTIC MESH CANVAS ── */
+  #synaptic-canvas {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    opacity: 0.65;
+  }
+
+  /* ── AMBIENT RADIAL GLOWS ── */
+  .ambient-glow {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(120px);
+    pointer-events: none;
+    z-index: 1;
+    animation: glowDrift 18s ease-in-out infinite;
+  }
+  .ambient-glow.g1 {
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(0,242,254,0.07) 0%, transparent 70%);
+    top: -200px; right: -100px;
+    animation-delay: 0s;
+  }
+  .ambient-glow.g2 {
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(5,213,179,0.06) 0%, transparent 70%);
+    bottom: -150px; left: -50px;
+    animation-delay: -9s;
+  }
+  @keyframes glowDrift {
+    0%, 100% { transform: translate(0,0); }
+    33% { transform: translate(30px, -20px); }
+    66% { transform: translate(-20px, 30px); }
+  }
+
+  /* ── LAYOUT ── */
+  .app-shell {
+    position: relative;
+    z-index: 2;
+    min-height: 100vh;
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(3,5,8,0.82);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 32px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .nav-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .nav-logo {
+    width: 28px; height: 28px;
+    position: relative;
+  }
+
+  .nav-logo svg { width: 100%; height: 100%; }
+
+  .brand-name {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: 0.18em;
+    color: var(--cyan);
+    text-transform: uppercase;
+  }
+
+  .brand-sub {
+    font-size: 10px;
+    color: var(--text-muted);
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.12em;
+  }
+
+  .nav-status {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--emerald);
+  }
+
+  .status-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--emerald);
+    box-shadow: 0 0 8px var(--emerald);
+    animation: statusPulse 2s ease-in-out infinite;
+  }
+
+  @keyframes statusPulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.8); }
+  }
+
+  .nav-tabs {
+    display: flex;
+    gap: 4px;
+    list-style: none;
+  }
+
+  .nav-tabs button {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-family: 'Vazirmatn', sans-serif;
+    font-size: 13px;
+    padding: 6px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: color 0.2s, background 0.2s;
+  }
+
+  .nav-tabs button:hover,
+  .nav-tabs button.active {
+    color: var(--text-primary);
+    background: rgba(255,255,255,0.06);
+  }
+
+  .nav-tabs button.active {
+    color: var(--cyan);
+  }
+
+  /* ── MAIN BENTO GRID ── */
+  main {
+    padding: 20px 24px 32px;
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 12px;
+    max-width: 1440px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  /* ── GLASS PANEL BASE ── */
+  .panel {
+    background: var(--glass);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.3s;
+  }
+
+  .panel::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 16px;
+    background: linear-gradient(135deg, rgba(255,255,255,0.035) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  .panel:hover {
+    border-color: var(--border-bright);
+  }
+
+  .panel-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .panel-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* ── GRID POSITIONS ── */
+  .cell-neural-index { grid-column: span 4; grid-row: span 1; }
+  .cell-streak-arc   { grid-column: span 2; grid-row: span 1; }
+  .cell-circadian    { grid-column: span 3; grid-row: span 1; }
+  .cell-receptor     { grid-column: span 3; grid-row: span 1; }
+  .cell-dopamine     { grid-column: span 7; grid-row: span 2; }
+  .cell-emergency    { grid-column: span 5; grid-row: span 2; }
+  .cell-blackbox     { grid-column: span 5; grid-row: span 1; }
+  .cell-audio        { grid-column: span 4; grid-row: span 1; }
+  .cell-stroop       { grid-column: span 3; grid-row: span 1; }
+
+  /* ── NEURAL INTEGRITY INDEX ── */
+  .nii-score {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 72px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+    background: linear-gradient(135deg, var(--cyan) 0%, var(--emerald) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: -0.02em;
+  }
+
+  .nii-unit {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    color: var(--text-muted);
+    margin-top: 4px;
+    letter-spacing: 0.08em;
+  }
+
+  .nii-delta {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--emerald);
+    margin-top: 8px;
+    background: rgba(5,213,179,0.1);
+    padding: 3px 8px;
+    border-radius: 4px;
+  }
+
+  .nii-subtitle {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-top: 12px;
+    line-height: 1.5;
+    max-width: 280px;
+  }
+
+  .nii-bar-track {
+    margin-top: 16px;
+    height: 3px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .nii-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--emerald), var(--cyan));
+    border-radius: 2px;
+    width: 0%;
+    transition: width 1.8s cubic-bezier(0.23, 1, 0.32, 1);
+    box-shadow: 0 0 8px rgba(0,242,254,0.4);
+  }
+
+  /* ── STREAK ARC ── */
+  .streak-arc-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    gap: 8px;
+  }
+
+  .arc-svg { width: 100px; height: 100px; }
+
+  .streak-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--text-primary);
+    font-variant-numeric: tabular-nums;
+    text-align: center;
+  }
+
+  .streak-sublabel {
+    font-size: 11px;
+    color: var(--text-muted);
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.06em;
+  }
+
+  /* ── CIRCADIAN ── */
+  .circadian-timeline {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 8px;
+  }
+
+  .circadian-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .circ-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--text-muted);
+    width: 36px;
+    text-align: left;
+    direction: ltr;
+  }
+
+  .circ-bar-track {
+    flex: 1;
+    height: 6px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .circ-bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    width: 0%;
+    transition: width 1.4s ease;
+  }
+
+  .circ-bar-fill.risk-low    { background: var(--emerald); box-shadow: 0 0 6px rgba(5,213,179,0.5); }
+  .circ-bar-fill.risk-medium { background: var(--amber); box-shadow: 0 0 6px rgba(245,158,11,0.5); }
+  .circ-bar-fill.risk-high   { background: var(--rose); box-shadow: 0 0 6px rgba(244,63,94,0.5); }
+
+  .circ-risk {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    width: 36px;
+    text-align: right;
+  }
+
+  /* ── RECEPTOR STATUS ── */
+  .receptor-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 8px;
+  }
+
+  .receptor-cell {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px;
+    text-align: center;
+  }
+
+  .receptor-name {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    color: var(--text-muted);
+    letter-spacing: 0.1em;
+    margin-bottom: 4px;
+  }
+
+  .receptor-val {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .receptor-val.good { color: var(--emerald); }
+  .receptor-val.warn { color: var(--amber); }
+  .receptor-val.bad  { color: var(--rose); }
+
+  /* ── DOPAMINE SANDBOX ── */
+  .dopamine-canvas-wrap {
+    position: relative;
+    width: 100%;
+    flex: 1;
+  }
+
+  #dopamine-canvas {
+    width: 100%;
+    height: 260px;
+    display: block;
+  }
+
+  .dopamine-controls {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+    flex-wrap: wrap;
+  }
+
+  .dop-btn {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    padding: 6px 14px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: rgba(255,255,255,0.04);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.04em;
+  }
+
+  .dop-btn:hover { background: rgba(255,255,255,0.08); color: var(--text-primary); }
+  .dop-btn.active { background: rgba(0,242,254,0.1); border-color: rgba(0,242,254,0.3); color: var(--cyan); }
+
+  .dopamine-legend {
+    display: flex;
+    gap: 16px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--text-muted);
+  }
+
+  .legend-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+  }
+
+  /* ── EMERGENCY INTERCEPTOR ── */
+  .emergency-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .emergency-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    background: rgba(244,63,94,0.15);
+    border: 1px solid rgba(244,63,94,0.25);
+    color: var(--rose);
+    letter-spacing: 0.08em;
+  }
+
+  .phase-tabs {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 16px;
+  }
+
+  .phase-tab {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    padding: 5px 12px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .phase-tab.active {
+    border-color: rgba(244,63,94,0.4);
+    background: rgba(244,63,94,0.1);
+    color: var(--rose);
+  }
+
+  /* Phase 1: Sigh Pacer */
+  #sigh-pacer { display: flex; flex-direction: column; align-items: center; gap: 16px; }
+
+  .sigh-ring-wrap {
+    position: relative;
+    width: 140px;
+    height: 140px;
+  }
+
+  .sigh-ring-wrap svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+
+  .sigh-label {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .sigh-action {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .sigh-cycle {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+
+  .sigh-instruction {
+    font-size: 13px;
+    color: var(--text-secondary);
+    text-align: center;
+    max-width: 200px;
+    line-height: 1.5;
+  }
+
+  .sigh-start-btn {
+    font-family: 'Vazirmatn', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 10px 24px;
+    border-radius: 8px;
+    border: none;
+    background: rgba(244,63,94,0.18);
+    border: 1px solid rgba(244,63,94,0.35);
+    color: var(--rose);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .sigh-start-btn:hover { background: rgba(244,63,94,0.28); }
+
+  /* Phase 2: Stroop */
+  #stroop-game { display: none; flex-direction: column; align-items: center; gap: 14px; }
+
+  .stroop-prompt {
+    text-align: center;
+  }
+
+  .stroop-word {
+    font-size: 48px;
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    transition: all 0.2s;
+  }
+
+  .stroop-question {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 8px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .stroop-choices {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .stroop-choice {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    padding: 8px 16px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: rgba(255,255,255,0.04);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .stroop-choice:hover { background: rgba(255,255,255,0.08); color: var(--text-primary); }
+
+  .stroop-feedback {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    min-height: 20px;
+    text-align: center;
+  }
+
+  .stroop-score {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+
+  /* Phase 3: Friction */
+  #friction-phase { display: none; flex-direction: column; gap: 10px; }
+
+  .friction-action {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    border-radius: 8px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--border);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .friction-action:hover { background: rgba(255,255,255,0.06); border-color: var(--border-bright); }
+
+  .friction-icon {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+
+  .friction-text { flex: 1; }
+  .friction-title { font-size: 13px; font-weight: 600; }
+  .friction-sub { font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
+  .friction-check { width: 18px; height: 18px; border: 1px solid var(--border); border-radius: 4px; flex-shrink: 0; transition: all 0.2s; }
+  .friction-action.done .friction-check { background: var(--emerald); border-color: var(--emerald); }
+
+  /* ── AUDIO ENGINE ── */
+  .audio-panel-inner {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .audio-viz {
+    height: 48px;
+    display: flex;
+    align-items: flex-end;
+    gap: 3px;
+    padding: 0 4px;
+  }
+
+  .audio-bar {
+    flex: 1;
+    border-radius: 2px 2px 0 0;
+    background: linear-gradient(180deg, var(--cyan), rgba(0,242,254,0.2));
+    min-height: 4px;
+    transition: height 0.1s;
+  }
+
+  .audio-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .audio-play-btn {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    border: 1px solid rgba(0,242,254,0.3);
+    background: rgba(0,242,254,0.08);
+    color: var(--cyan);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+    transition: all 0.2s;
+    flex-shrink: 0;
+  }
+
+  .audio-play-btn:hover { background: rgba(0,242,254,0.16); }
+
+  .audio-info {
+    flex: 1;
+  }
+
+  .audio-freq {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--cyan);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .audio-desc {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+
+  .audio-vol {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+
+  .vol-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 80px;
+    height: 3px;
+    border-radius: 2px;
+    background: rgba(255,255,255,0.1);
+    outline: none;
+  }
+
+  .vol-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    background: var(--cyan);
+    cursor: pointer;
+    box-shadow: 0 0 6px rgba(0,242,254,0.5);
+  }
+
+  /* ── BLACK BOX ── */
+  .blackbox-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 4px;
+  }
+
+  .bb-entry {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px;
+    border-radius: 8px;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid var(--border);
+    transition: all 0.2s;
+    cursor: pointer;
+  }
+
+  .bb-entry:hover { background: rgba(255,255,255,0.05); }
+
+  .bb-icon {
+    width: 28px; height: 28px;
+    border-radius: 6px;
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px;
+  }
+
+  .bb-icon.amber-bg { background: rgba(245,158,11,0.12); }
+  .bb-icon.rose-bg  { background: rgba(244,63,94,0.12); }
+  .bb-icon.cyan-bg  { background: rgba(0,242,254,0.08); }
+
+  .bb-content { flex: 1; min-width: 0; }
+
+  .bb-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 2px;
+  }
+
+  .bb-meta {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--text-muted);
+    letter-spacing: 0.04em;
+  }
+
+  .bb-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    padding: 2px 6px;
+    border-radius: 3px;
+    flex-shrink: 0;
+    align-self: flex-start;
+    margin-top: 2px;
+    letter-spacing: 0.08em;
+  }
+
+  .bb-tag.warn { background: rgba(245,158,11,0.12); color: var(--amber); }
+  .bb-tag.crit { background: rgba(244,63,94,0.12); color: var(--rose); }
+  .bb-tag.info { background: rgba(0,242,254,0.08); color: var(--cyan); }
+
+  /* ── LOG EVENT ── */
+  .log-btn {
+    font-family: 'Vazirmatn', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 9px 18px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: rgba(255,255,255,0.04);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.2s;
+    width: 100%;
+    margin-top: 10px;
+  }
+
+  .log-btn:hover { background: rgba(255,255,255,0.08); color: var(--text-primary); }
+
+  /* ── PAGE SECTIONS ── */
+  .page-section { display: none; }
+  .page-section.active { display: grid; grid-template-columns: repeat(12, 1fr); gap: 12px; width: 100%; grid-column: 1 / -1; }
+
+  /* ── SETTINGS PAGE ── */
+  .settings-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    grid-column: span 8;
+  }
+
+  .settings-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .settings-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 0.1em;
+  }
+
+  .settings-input {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    color: var(--text-primary);
+    font-family: 'Vazirmatn', sans-serif;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+    width: 100%;
+  }
+
+  .settings-input:focus { border-color: rgba(0,242,254,0.3); }
+
+  .toggle-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 14px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+  }
+
+  .toggle-info { }
+  .toggle-title { font-size: 13px; font-weight: 500; }
+  .toggle-desc { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+  .toggle-switch {
+    width: 40px; height: 22px;
+    border-radius: 11px;
+    background: rgba(255,255,255,0.08);
+    cursor: pointer;
+    position: relative;
+    transition: background 0.2s;
+    flex-shrink: 0;
+    border: none;
+  }
+
+  .toggle-switch::after {
+    content: '';
+    position: absolute;
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.4);
+    top: 3px; left: 3px;
+    transition: all 0.2s;
+  }
+
+  .toggle-switch.on { background: rgba(0,242,254,0.2); border: 1px solid rgba(0,242,254,0.3); }
+  .toggle-switch.on::after { background: var(--cyan); left: 21px; box-shadow: 0 0 6px rgba(0,242,254,0.5); }
+
+  /* ── FOOTER ── */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 14px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .footer-text {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--text-muted);
+    letter-spacing: 0.06em;
+  }
+
+  .footer-version {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--text-muted);
+  }
+
+  /* ── LOAD ANIMATION ── */
+  @keyframes panelReveal {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .panel { animation: panelReveal 0.5s ease both; }
+  .panel:nth-child(1)  { animation-delay: 0.05s; }
+  .panel:nth-child(2)  { animation-delay: 0.10s; }
+  .panel:nth-child(3)  { animation-delay: 0.15s; }
+  .panel:nth-child(4)  { animation-delay: 0.20s; }
+  .panel:nth-child(5)  { animation-delay: 0.25s; }
+  .panel:nth-child(6)  { animation-delay: 0.30s; }
+  .panel:nth-child(7)  { animation-delay: 0.35s; }
+  .panel:nth-child(8)  { animation-delay: 0.40s; }
+  .panel:nth-child(9)  { animation-delay: 0.45s; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .panel { animation: none; }
+    .ambient-glow { animation: none; }
+    .status-dot { animation: none; }
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 1100px) {
+    .cell-neural-index { grid-column: span 6; }
+    .cell-streak-arc   { grid-column: span 3; }
+    .cell-circadian    { grid-column: span 6; }
+    .cell-receptor     { grid-column: span 3; }
+    .cell-dopamine     { grid-column: span 12; grid-row: span 1; }
+    .cell-emergency    { grid-column: span 12; grid-row: span 1; }
+    .cell-blackbox     { grid-column: span 7; }
+    .cell-audio        { grid-column: span 5; }
+    .cell-stroop       { grid-column: span 12; }
+  }
+
+  @media (max-width: 768px) {
+    main { padding: 12px; gap: 10px; grid-template-columns: 1fr 1fr; }
+    .cell-neural-index,
+    .cell-streak-arc,
+    .cell-circadian,
+    .cell-receptor,
+    .cell-dopamine,
+    .cell-emergency,
+    .cell-blackbox,
+    .cell-audio,
+    .cell-stroop { grid-column: span 2; grid-row: span 1; }
+    nav { padding: 0 16px; }
+    .nav-tabs { display: none; }
+    .nii-score { font-size: 56px; }
+  }
+
+  /* ── MODAL ── */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(3,5,8,0.85);
+    backdrop-filter: blur(8px);
+    z-index: 200;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  .modal-overlay.open { display: flex; }
+
+  .modal-box {
+    background: var(--glass-solid);
+    border: 1px solid var(--border-bright);
+    border-radius: 16px;
+    padding: 28px;
+    max-width: 480px;
+    width: 100%;
+    position: relative;
+  }
+
+  .modal-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+
+  .modal-body {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin-bottom: 20px;
+  }
+
+  .modal-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+  }
+
+  .modal-btn-primary {
+    font-family: 'Vazirmatn', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 9px 20px;
+    border-radius: 8px;
+    border: none;
+    background: rgba(244,63,94,0.2);
+    border: 1px solid rgba(244,63,94,0.35);
+    color: var(--rose);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .modal-btn-primary:hover { background: rgba(244,63,94,0.32); }
+
+  .modal-btn-cancel {
+    font-family: 'Vazirmatn', sans-serif;
+    font-size: 13px;
+    padding: 9px 20px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .modal-btn-cancel:hover { background: rgba(255,255,255,0.05); }
+</style>
+</head>
+<body>
+
+<!-- Living Synaptic Mesh -->
+<canvas id="synaptic-canvas" aria-hidden="true"></canvas>
+
+<!-- Ambient Glows -->
+<div class="ambient-glow g1" aria-hidden="true"></div>
+<div class="ambient-glow g2" aria-hidden="true"></div>
+
+<!-- Log Incident Modal -->
+<div class="modal-overlay" id="log-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title-text">
+  <div class="modal-box">
+    <div class="modal-title" id="modal-title-text">ثبت رویداد در جعبه سیاه</div>
+    <div class="modal-body">
+      این ابزار بدون هیچ قضاوتی عملکرد شما را ثبت می‌کند — مانند سیستم ضبط پرواز. هدف شناسایی الگوهای شکاف اصطکاک است، نه ارزیابی اخلاقی.
+      <br><br>
+      چه زمانی از روز بود؟ چه عاملی باعث شد؟
+    </div>
+    <div style="margin-bottom:16px;">
+      <select class="settings-input" id="modal-time">
+        <option>00:00 – 06:00  (شب دیرهنگام)</option>
+        <option>06:00 – 12:00  (صبح)</option>
+        <option selected>12:00 – 18:00  (بعدازظهر)</option>
+        <option>18:00 – 24:00  (شب)</option>
+      </select>
+    </div>
+    <div style="margin-bottom:16px;">
+      <select class="settings-input" id="modal-trigger">
+        <option>استرس یا اضطراب</option>
+        <option>بی‌حوصلگی</option>
+        <option>تنهایی</option>
+        <option>خستگی</option>
+        <option>محیط پرریسک (تختخواب + تنهایی)</option>
+        <option>ناشناخته</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="modal-btn-cancel" onclick="closeModal()">لغو</button>
+      <button class="modal-btn-primary" onclick="submitLog()">ثبت رویداد</button>
+    </div>
+  </div>
+</div>
+
+<div class="app-shell">
+  <!-- NAV -->
+  <nav>
+    <div class="nav-brand">
+      <div class="nav-logo">
+        <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="14" cy="14" r="13" stroke="rgba(0,242,254,0.3)" stroke-width="1"/>
+          <circle cx="14" cy="8" r="2.5" fill="#00f2fe" opacity="0.9"/>
+          <circle cx="8"  cy="18" r="2.5" fill="#05d5b3" opacity="0.9"/>
+          <circle cx="20" cy="18" r="2.5" fill="#00f2fe" opacity="0.7"/>
+          <line x1="14" y1="10" x2="9" y2="17" stroke="rgba(0,242,254,0.35)" stroke-width="1"/>
+          <line x1="14" y1="10" x2="19" y2="17" stroke="rgba(0,242,254,0.35)" stroke-width="1"/>
+          <line x1="10" y1="18" x2="18" y2="18" stroke="rgba(5,213,179,0.3)" stroke-width="1"/>
+        </svg>
+      </div>
+      <div>
+        <div class="brand-name">NEUROSHIFT</div>
+        <div class="brand-sub">Neural Integrity Console v2.4</div>
+      </div>
+    </div>
+
+    <ul class="nav-tabs">
+      <li><button class="active" onclick="switchTab('dashboard', this)">داشبورد</button></li>
+      <li><button onclick="switchTab('dopamine-view', this)">شبیه‌ساز دوپامین</button></li>
+      <li><button onclick="switchTab('emergency-view', this)">رهگیر اضطراری</button></li>
+      <li><button onclick="switchTab('blackbox-view', this)">جعبه سیاه</button></li>
+      <li><button onclick="switchTab('settings-view', this)">تنظیمات</button></li>
+    </ul>
+
+    <div class="nav-status">
+      <div class="status-dot"></div>
+      <span>سیستم فعال</span>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <main>
+
+    <!-- ══ DASHBOARD ══ -->
+    <div class="page-section active" id="dashboard">
+
+      <!-- Neural Integrity Index -->
+      <div class="panel cell-neural-index">
+        <div class="panel-label">شاخص یکپارچگی عصبی</div>
+        <div class="nii-score" id="nii-score-val">78.4</div>
+        <div class="nii-unit">Neural Integrity & Synaptic Stability Index</div>
+        <div class="nii-delta">▲ 3.2 در 7 روز گذشته</div>
+        <div class="nii-subtitle">میانگین متحرک تراکم سیناپسی پیش‌پیشانی در 30 روز — مستقل از رویدادها</div>
+        <div class="nii-bar-track">
+          <div class="nii-bar-fill" id="nii-bar" style="width:78.4%"></div>
+        </div>
+      </div>
+
+      <!-- Streak Arc -->
+      <div class="panel cell-streak-arc">
+        <div class="panel-label">فاز جاری</div>
+        <div class="streak-arc-container">
+          <div class="arc-svg">
+            <svg viewBox="0 0 100 100">
+              <circle cx="50" cy="50" r="40" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="7" stroke-linecap="round"/>
+              <circle cx="50" cy="50" r="40" fill="none" stroke="url(#arcGrad)" stroke-width="7" stroke-linecap="round"
+                stroke-dasharray="251.2" stroke-dashoffset="62.8" id="arc-circle"/>
+              <defs>
+                <linearGradient id="arcGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stop-color="#05d5b3"/>
+                  <stop offset="100%" stop-color="#00f2fe"/>
+                </linearGradient>
+              </defs>
+            </svg>
+          </div>
+          <div class="streak-value">18</div>
+          <div class="streak-sublabel">روز در فاز بازسازی</div>
+        </div>
+      </div>
+
+      <!-- Circadian Risk -->
+      <div class="panel cell-circadian">
+        <div class="panel-label">نقشه ریسک شبانه‌روزی</div>
+        <div class="circadian-timeline">
+          <div class="circadian-row">
+            <span class="circ-label">۰۰–۰۶</span>
+            <div class="circ-bar-track"><div class="circ-bar-fill risk-high" style="width:82%"></div></div>
+            <span class="circ-risk" style="color:var(--rose)">بالا</span>
+          </div>
+          <div class="circadian-row">
+            <span class="circ-label">۰۶–۱۲</span>
+            <div class="circ-bar-track"><div class="circ-bar-fill risk-low" style="width:22%"></div></div>
+            <span class="circ-risk" style="color:var(--emerald)">پایین</span>
+          </div>
+          <div class="circadian-row">
+            <span class="circ-label">۱۲–۱۸</span>
+            <div class="circ-bar-track"><div class="circ-bar-fill risk-medium" style="width:45%"></div></div>
+            <span class="circ-risk" style="color:var(--amber)">متوسط</span>
+          </div>
+          <div class="circadian-row">
+            <span class="circ-label">۱۸–۲۴</span>
+            <div class="circ-bar-track"><div class="circ-bar-fill risk-high" style="width:71%"></div></div>
+            <span class="circ-risk" style="color:var(--rose)">بالا</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- D2 Receptor Status -->
+      <div class="panel cell-receptor">
+        <div class="panel-label">وضعیت گیرنده‌ها</div>
+        <div class="receptor-grid">
+          <div class="receptor-cell">
+            <div class="receptor-name">D2 Receptor</div>
+            <div class="receptor-val good">74%</div>
+          </div>
+          <div class="receptor-cell">
+            <div class="receptor-name">PFC Density</div>
+            <div class="receptor-val good">81%</div>
+          </div>
+          <div class="receptor-cell">
+            <div class="receptor-name">Cortisol</div>
+            <div class="receptor-val warn">↑ 18%</div>
+          </div>
+          <div class="receptor-cell">
+            <div class="receptor-name">Prolactin</div>
+            <div class="receptor-val good">↓ 12%</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mini Dopamine Curve -->
+      <div class="panel cell-dopamine">
+        <div class="panel-label">شبیه‌ساز دوپامین</div>
+        <canvas id="dopamine-canvas-mini"></canvas>
+        <div class="dopamine-legend">
+          <div class="legend-item"><div class="legend-dot" style="background:var(--rose)"></div>مسیر اعتیاد</div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--cyan)"></div>پایه پایدار</div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--emerald)"></div>موقعیت فعلی شما</div>
+        </div>
+        <div class="dopamine-controls">
+          <button class="dop-btn active" onclick="setDopMode('stable',this)">پایه پایدار</button>
+          <button class="dop-btn" onclick="setDopMode('crash',this)">سقوط پس از رویداد</button>
+          <button class="dop-btn" onclick="setDopMode('recovery',this)">مسیر بازیابی</button>
+        </div>
+      </div>
+
+      <!-- Emergency Interceptor -->
+      <div class="panel cell-emergency">
+        <div class="emergency-header">
+          <div class="panel-label" style="margin-bottom:0;flex:1">رهگیر اضطراری</div>
+          <div class="emergency-badge">3 فاز</div>
+        </div>
+
+        <div class="phase-tabs">
+          <button class="phase-tab active" onclick="switchPhase(1,this)">فاز ۱ — تنفس</button>
+          <button class="phase-tab" onclick="switchPhase(2,this)">فاز ۲ — استروپ</button>
+          <button class="phase-tab" onclick="switchPhase(3,this)">فاز ۳ — اصطکاک</button>
+        </div>
+
+        <!-- Phase 1 -->
+        <div id="sigh-pacer">
+          <div class="sigh-ring-wrap">
+            <svg viewBox="0 0 100 100">
+              <circle cx="50" cy="50" r="42" fill="none" stroke="rgba(244,63,94,0.12)" stroke-width="5"/>
+              <circle cx="50" cy="50" r="42" fill="none" stroke="var(--rose)" stroke-width="5"
+                stroke-linecap="round" stroke-dasharray="263.9" stroke-dashoffset="263.9"
+                id="sigh-ring" style="transition:stroke-dashoffset 0.1s linear; filter: drop-shadow(0 0 6px rgba(244,63,94,0.5))"/>
+            </svg>
+            <div class="sigh-label">
+              <div class="sigh-action" id="sigh-action-text">آماده</div>
+              <div class="sigh-cycle" id="sigh-cycle-text">چرخه ۰/۵</div>
+            </div>
+          </div>
+          <div class="sigh-instruction" id="sigh-instruction">
+            تنفس فیزیولوژیک هاب‌من: دو دم کوتاه از بینی، یک بازدم طولانی از دهان
+          </div>
+          <button class="sigh-start-btn" id="sigh-btn" onclick="toggleSigh()">شروع پروتکل تنفسی</button>
+        </div>
+
+        <!-- Phase 2 -->
+        <div id="stroop-game">
+          <div class="stroop-prompt">
+            <div class="stroop-word" id="stroop-word">آبی</div>
+            <div class="stroop-question">رنگ نوشته را انتخاب کنید (نه معنای کلمه)</div>
+          </div>
+          <div class="stroop-choices" id="stroop-choices"></div>
+          <div class="stroop-feedback" id="stroop-feedback"></div>
+          <div class="stroop-score">امتیاز: <span id="stroop-score">0</span> | دقت: <span id="stroop-acc">—</span></div>
+        </div>
+
+        <!-- Phase 3 -->
+        <div id="friction-phase">
+          <div style="font-size:12px;color:var(--text-secondary);margin-bottom:10px;line-height:1.5">
+            اصطکاک فیزیکی فوری: این اقدامات را یکی یکی انجام دهید تا محیط را تغییر دهید.
+          </div>
+          <div class="friction-action" onclick="toggleFriction(this)">
+            <div class="friction-icon amber-bg">☀</div>
+            <div class="friction-text">
+              <div class="friction-title">روشن کردن تمام چراغ‌ها</div>
+              <div class="friction-sub">نور محیط را به حداکثر برسانید</div>
+            </div>
+            <div class="friction-check"></div>
+          </div>
+          <div class="friction-action" onclick="toggleFriction(this)">
+            <div class="friction-icon cyan-bg">🚶</div>
+            <div class="friction-text">
+              <div class="friction-title">خروج فوری از اتاق</div>
+              <div class="friction-sub">به یک فضای عمومی بروید</div>
+            </div>
+            <div class="friction-check"></div>
+          </div>
+          <div class="friction-action" onclick="toggleFriction(this)">
+            <div class="friction-icon rose-bg">💧</div>
+            <div class="friction-text">
+              <div class="friction-title">آب سرد روی صورت</div>
+              <div class="friction-sub">عصب واگ را فعال می‌کند، ضربان را کاهش می‌دهد</div>
+            </div>
+            <div class="friction-check"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Black Box -->
+      <div class="panel cell-blackbox">
+        <div class="panel-label">جعبه سیاه — تلمتری حوادث</div>
+        <div class="blackbox-list">
+          <div class="bb-entry" tabindex="0">
+            <div class="bb-icon amber-bg">⚠</div>
+            <div class="bb-content">
+              <div class="bb-title">شکاف اصطکاک شناسایی شد</div>
+              <div class="bb-meta">دیشب ۰۲:۱۷  ·  شنبه ۱۴۰۳/۷/۲۰</div>
+            </div>
+            <div class="bb-tag warn">FRICTION</div>
+          </div>
+          <div class="bb-entry" tabindex="0">
+            <div class="bb-icon cyan-bg">◆</div>
+            <div class="bb-content">
+              <div class="bb-title">الگوی شبانه‌روزی — ۰۰:۰۰–۰۳:۰۰ منطقه قرمز</div>
+              <div class="bb-meta">تحلیل ۳۰ روز گذشته  ·  ۴ مورد در این بازه</div>
+            </div>
+            <div class="bb-tag info">PATTERN</div>
+          </div>
+          <div class="bb-entry" tabindex="0">
+            <div class="bb-icon rose-bg">▲</div>
+            <div class="bb-content">
+              <div class="bb-title">اشباع کورتیزول — ۱۸٪ بالاتر از پایه</div>
+              <div class="bb-meta">دوشنبه  ·  استرس کاری پیش‌بینی شد به عنوان عامل</div>
+            </div>
+            <div class="bb-tag crit">CORTISOL</div>
+          </div>
+        </div>
+        <button class="log-btn" onclick="openModal()">ثبت رویداد جدید</button>
+      </div>
+
+      <!-- Audio Engine -->
+      <div class="panel cell-audio">
+        <div class="panel-label">موتور صوتی گاما</div>
+        <div class="audio-panel-inner">
+          <div class="audio-viz" id="audio-viz">
+            <!-- bars injected by JS -->
+          </div>
+          <div class="audio-controls">
+            <button class="audio-play-btn" id="audio-play-btn" onclick="toggleAudio()" aria-label="پخش/توقف">
+              ▶
+            </button>
+            <div class="audio-info">
+              <div class="audio-freq">40 Hz</div>
+              <div class="audio-desc">موج گاما — ۲۰۰Hz + ۲۴۰Hz بیناورال</div>
+            </div>
+          </div>
+          <div class="audio-vol">
+            <span>صدا</span>
+            <input type="range" class="vol-slider" id="vol-slider" min="0" max="100" value="60" oninput="setVolume(this.value)">
+            <span id="vol-val">60</span>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /dashboard -->
+
+    <!-- ══ DOPAMINE SANDBOX VIEW (FULL) ══ -->
+    <div class="page-section" id="dopamine-view">
+      <div class="panel" style="grid-column: span 8;">
+        <div class="panel-label">آزمایشگاه منحنی سینتیک دوپامین</div>
+        <div style="font-size:13px;color:var(--text-secondary);margin-bottom:12px">
+          شبیه‌سازی تعاملی اثر محرک فوق‌طبیعی (Supra-physiological) در مقایسه با هموستاز زیستی و مسیر ترمیم سیناپسی.
+        </div>
+        <canvas id="dopamine-canvas-full" style="width:100%;height:320px;display:block;border-radius:8px;background:rgba(0,0,0,0.2)"></canvas>
+        <div class="dopamine-legend" style="margin-top:14px">
+          <div class="legend-item"><div class="legend-dot" style="background:var(--rose)"></div>سقوط پس از رویداد (Addiction Loop)</div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--cyan)"></div>هموستاز پایه طبیعی (Stable Baseline)</div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--emerald)"></div>مسیر بازسازی شما (Recovery Trajectory)</div>
+        </div>
+        <div class="dopamine-controls" style="margin-top:14px">
+          <button class="dop-btn active" onclick="setDopMode('stable',this)">پایه پایدار</button>
+          <button class="dop-btn" onclick="setDopMode('crash',this)">سقوط پس از رویداد</button>
+          <button class="dop-btn" onclick="setDopMode('recovery',this)">مسیر بازیابی و رشد</button>
+        </div>
+      </div>
+
+      <div class="panel" style="grid-column: span 4;">
+        <div class="panel-label">تحلیل مولکولی و گیرنده‌ها</div>
+        <div style="font-size:12px;color:var(--text-secondary);line-height:1.7;">
+          <p><strong style="color:var(--cyan)">پروتئین ΔFosB:</strong> نیمه‌عمر این فاکتور رونویسی حدود ۹ روز است. با تداوم روزهای پاکی، پیوندهای کروماتین در نوکلئوس اکومبنس ریست می‌شوند.</p>
+          <br>
+          <p><strong style="color:var(--emerald)">حساسیت‌زایی D2:</strong> پس از ۴ هفته، بازیابی گیرنده‌های دوپامین D2 به بالای ۶۵٪ و پس از ۹۰ روز به بالای ۹۰٪ می‌رسد (Volkow et al.).</p>
+          <br>
+          <p><strong style="color:var(--rose)">داینورفین و آنهدونیا:</strong> پرتاب دوپامین به سطح غیرطبیعی فوراً پپتیدهای ضد لذت (Dynorphin) را ترشح می‌کند که علت اصلی احساس پوچی و افت انگیزه پس از لغزش است.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ EMERGENCY VIEW (FULL) ══ -->
+    <div class="page-section" id="emergency-view">
+      <div class="panel" style="grid-column: span 6;">
+        <div class="panel-label">پروتکل ۱ — تنفس فیزیولوژیک (Andrew Huberman)</div>
+        <div style="font-size:12px;color:var(--text-secondary);margin-bottom:12px">
+          دو دم عمیق پی‌درپی از بینی (پر کردن کامل آلوئول‌های ریه) + بازدم بسیار طولانی و آهسته از دهان. تحریک مستقیم عصب واگ و مهار فوری سمپاتیک.
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;padding:20px 0;">
+          <div class="sigh-ring-wrap" style="width:160px;height:160px;">
+            <svg viewBox="0 0 100 100">
+              <circle cx="50" cy="50" r="42" fill="none" stroke="rgba(244,63,94,0.12)" stroke-width="5"/>
+              <circle cx="50" cy="50" r="42" fill="none" stroke="var(--rose)" stroke-width="5"
+                stroke-linecap="round" stroke-dasharray="263.9" stroke-dashoffset="263.9"
+                id="sigh-ring-full" style="transition:stroke-dashoffset 0.1s linear; filter: drop-shadow(0 0 8px rgba(244,63,94,0.6))"/>
+            </svg>
+            <div class="sigh-label">
+              <div class="sigh-action" id="sigh-action-text-full" style="font-size:15px">آماده</div>
+              <div class="sigh-cycle" id="sigh-cycle-text-full">چرخه ۰/۵</div>
+            </div>
+          </div>
+          <div class="sigh-instruction" id="sigh-instruction-full" style="margin-top:14px;max-width:260px">
+            دو دم از بینی، یک بازدم طولانی از دهان
+          </div>
+          <button class="sigh-start-btn" id="sigh-btn-full" onclick="toggleSigh(true)" style="margin-top:16px;">شروع ۵ چرخه تنفس</button>
+        </div>
+      </div>
+
+      <div class="panel" style="grid-column: span 6;">
+        <div class="panel-label">پروتکل ۲ — مهار شناختی استروپ (Stroop ACC Engine)</div>
+        <div style="font-size:12px;color:var(--text-secondary);margin-bottom:12px">
+          اشغال کامل قشر قدامی کمربندی (ACC) و کورتکس جلوی پیشانی با حل تضاد شناختی بین رنگ فونت و معنای کلمه.
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;padding:20px 0;gap:16px;">
+          <div class="stroop-prompt">
+            <div class="stroop-word" id="stroop-word-full" style="font-size:56px">آبی</div>
+            <div class="stroop-question" style="margin-top:10px">فقط رنگ نوشته را انتخاب کنید (نه معنای آن)</div>
+          </div>
+          <div class="stroop-choices" id="stroop-choices-full"></div>
+          <div class="stroop-feedback" id="stroop-feedback-full" style="min-height:24px;font-size:14px;"></div>
+          <div class="stroop-score" style="font-size:12px;">امتیاز: <span id="stroop-score-full">0</span> | دقت: <span id="stroop-acc-full">—</span></div>
+        </div>
+      </div>
+
+      <div class="panel" style="grid-column: span 12;">
+        <div class="panel-label">پروتکل ۳ — ایجاد اصطکاک فیزیکی فوری (Environmental Friction)</div>
+        <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:12px;margin-top:8px;">
+          <div class="friction-action" onclick="toggleFrictionAction('lights', 'روشن کردن چراغ‌ها', this)">
+            <div class="friction-icon amber-bg">☀</div>
+            <div class="friction-text">
+              <div class="friction-title">روشن کردن فوری نور</div>
+              <div class="friction-sub">تاریکی محرک دوپامین ترشح می‌کند</div>
+            </div>
+            <div class="friction-check"></div>
+          </div>
+          <div class="friction-action" onclick="toggleFrictionAction('walk', 'خروج از اتاق خواب', this)">
+            <div class="friction-icon cyan-bg">🚶</div>
+            <div class="friction-text">
+              <div class="friction-title">خروج فوری از اتاق</div>
+              <div class="friction-sub">تغییر صحنه بصری به فضای باز یا عمومی</div>
+            </div>
+            <div class="friction-check"></div>
+          </div>
+          <div class="friction-action" onclick="toggleFrictionAction('cold-water', 'آب سرد به صورت', this)">
+            <div class="friction-icon rose-bg">💧</div>
+            <div class="friction-text">
+              <div class="friction-title">پاشیدن آب سرد به صورت</div>
+              <div class="friction-sub">فعال‌سازی رفلکس غواصی پستانداران</div>
+            </div>
+            <div class="friction-check"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ BLACK BOX VIEW (FULL) ══ -->
+    <div class="page-section" id="blackbox-view">
+      <div class="panel" style="grid-column: span 8;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+          <div class="panel-label" style="margin-bottom:0">جعبه سیاه — دفتر ثبت تلمتری و سوانح هوانوردی</div>
+          <button class="modal-btn-primary" onclick="openModal()" style="font-size:12px;padding:6px 14px;">+ ثبت رویداد جدید</button>
+        </div>
+        <div style="font-size:12px;color:var(--text-secondary);margin-bottom:14px;">
+          ثبت بدون سرزنش (Blameless Post-Mortem) مشابه سوانح هوایی. هدف پیدا کردن نقص‌های زنجیره اصطکاک است نه ارزیابی اخلاقی.
+        </div>
+        <div class="blackbox-list" id="blackbox-full-list">
+          <!-- Populated dynamically from API -->
+        </div>
+      </div>
+
+      <div class="panel" style="grid-column: span 4;">
+        <div class="panel-label">پایش الگو و ماتریس HALT</div>
+        <div style="font-size:12px;color:var(--text-secondary);line-height:1.7;">
+          <p><strong style="color:var(--amber)">گرسنگی، خشم، تنهایی، خستگی (HALT):</strong> ۹۲٪ تکانه‌های غیرارادی ناشی از یک کمبود بیولوژیک هموستاتیک هستند که به اشتباه توسط مغز به عنوان میل دوپامینی تفسیر می‌شود.</p>
+          <br>
+          <div class="panel-label" style="margin-top:10px">آسیب‌پذیری ساعات شبانه‌روزی</div>
+          <div class="circadian-timeline" id="circadian-summary">
+            <!-- Circadian info -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ══ SETTINGS ══ -->
+    <div class="page-section" id="settings-view">
+      <div class="panel settings-form" style="grid-column:span 8; animation-delay:0.05s">
+        <div class="panel-label">پروفایل کاربر</div>
+        <div class="settings-group">
+          <label class="settings-label">نام نمایشی</label>
+          <input class="settings-input" type="text" value="کاربر" dir="rtl">
+        </div>
+        <div class="settings-group">
+          <label class="settings-label">هدف فاز بازسازی (روز)</label>
+          <input class="settings-input" type="number" value="90" dir="ltr" style="font-family:'JetBrains Mono',monospace">
+        </div>
+        <div class="settings-group">
+          <label class="settings-label">یادآوری روزانه</label>
+          <input class="settings-input" type="time" value="08:00" dir="ltr" style="font-family:'JetBrains Mono',monospace">
+        </div>
+
+        <div class="panel-label" style="margin-top:8px">تنظیمات رفتاری</div>
+
+        <div class="toggle-row">
+          <div class="toggle-info">
+            <div class="toggle-title">اعلان بازه پرخطر شبانه‌روزی</div>
+            <div class="toggle-desc">هشدار در ساعات ۰۰:۰۰–۰۶:۰۰</div>
+          </div>
+          <button class="toggle-switch on" onclick="this.classList.toggle('on')" aria-label="toggle"></button>
+        </div>
+        <div class="toggle-row">
+          <div class="toggle-info">
+            <div class="toggle-title">پخش خودکار موج گاما در بحران</div>
+            <div class="toggle-desc">هنگام ورود به رهگیر اضطراری</div>
+          </div>
+          <button class="toggle-switch on" onclick="this.classList.toggle('on')" aria-label="toggle"></button>
+        </div>
+        <div class="toggle-row">
+          <div class="toggle-info">
+            <div class="toggle-title">حالت تمرکز — مسدودسازی پیشرفته</div>
+            <div class="toggle-desc">فعال‌سازی اصطکاک دیجیتال در ساعات پرخطر</div>
+          </div>
+          <button class="toggle-switch" onclick="this.classList.toggle('on')" aria-label="toggle"></button>
+        </div>
+
+        <div style="display:flex;gap:10px;margin-top:16px;">
+          <button class="modal-btn-primary" onclick="saveSettings()" style="background:rgba(0,242,254,0.18);border-color:rgba(0,242,254,0.4);color:var(--cyan)">ذخیره تنظیمات</button>
+          <button class="modal-btn-cancel" onclick="recalibrateSystem()">کالیبراسیون و همگام‌سازی</button>
+        </div>
+      </div>
+
+      <div class="panel" style="grid-column:span 4; animation-delay:0.1s">
+        <div class="panel-label">درباره سیستم</div>
+        <div style="font-size:12px; color:var(--text-secondary); line-height:1.7; margin-top:8px">
+          <p>NEUROSHIFT یک کنسول بیومتریک عصبی است که بر اساس آخرین یافته‌های علوم اعصاب شناختی ساخته شده است.</p>
+          <br>
+          <p style="color:var(--text-muted); font-family:'JetBrains Mono',monospace; font-size:10px; line-height:1.8">
+            شاخص یکپارچگی عصبی: میانگین متحرک ۳۰ روزه<br>
+            بر اساس تئوری فرایند ایرونیک ونگر<br>
+            ضد اثر «به جهنم» مارلات<br>
+            پروتکل تنفسی: دکتر آندرو هاب‌من
+          </p>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <footer>
+    <div class="footer-text">NEUROSHIFT Neural Integrity Console — داده‌ها کاملاً محلی و خصوصی هستند</div>
+    <div class="footer-version" style="font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--text-muted)">v2.4.1 · build 2024.01</div>
+  </footer>
+</div>
+
+<script>
+// ═══════════════════════════════════════════
+// TOAST NOTIFICATION SYSTEM
+// ═══════════════════════════════════════════
+function showToast(message, type = 'info') {
+  const container = document.getElementById('toast-container');
+  if (!container) return;
+  const toast = document.createElement('div');
+  toast.className = `toast ${type}`;
+  let icon = '◆';
+  if (type === 'success') icon = '✓';
+  if (type === 'warn') icon = '⚠';
+  if (type === 'crit') icon = '▲';
+  toast.innerHTML = `<span style="color:var(--cyan);font-weight:bold">${icon}</span> <span>${message}</span>`;
+  container.appendChild(toast);
+  setTimeout(() => {
+    toast.style.opacity = '0';
+    toast.style.transform = 'translateY(8px)';
+    setTimeout(() => toast.remove(), 300);
+  }, 4000);
+}
+
+// ═══════════════════════════════════════════
+// NEUROLOGICAL API & SYNC CLIENT
+// ═══════════════════════════════════════════
+const NeuroSync = {
+  apiAvailable: false,
+  telemetry: null,
+  incidents: [],
+  settings: {
+    displayName: 'کاربر',
+    targetDays: 90,
+    reminderTime: '08:00',
+    highRiskAlert: true,
+    autoGamma: true,
+    deepFocusFriction: false,
+    startDate: new Date(Date.now() - 18 * 86400 * 1000).toISOString()
+  },
+
+  async init() {
+    try {
+      const res = await fetch('/api/status', { signal: AbortSignal.timeout(3000) });
+      if (res.ok) {
+        const json = await res.json();
+        this.apiAvailable = true;
+        this.telemetry = json.data;
+        console.log('[NeuroSync] Connected to Scientific Telemetry Engine.');
+        showToast('متصل به انجین تلمتری بالینی NEUROSHIFT', 'success');
+      }
+    } catch (e) {
+      console.warn('[NeuroSync] Standalone / offline mode active:', e.message);
+      this.apiAvailable = false;
+      this.initLocalFallback();
+      showToast('حالت کلاینت محلی فعال است (داده‌ها در حافظه امن ذخیره می‌شوند)', 'info');
+    }
+
+    this.renderTelemetry();
+    await this.loadIncidents();
+    await this.loadSettings();
+  },
+
+  initLocalFallback() {
+    // Local storage fallback for completely isolated execution
+    const savedSettings = localStorage.getItem('neuro_settings');
+    if (savedSettings) {
+      try { this.settings = JSON.parse(savedSettings); } catch(e){}
+    }
+    const cleanDays = Math.max(1, Math.floor((Date.now() - new Date(this.settings.startDate).getTime()) / (1000 * 86400)));
+    this.telemetry = {
+      nii: { score: 78.4, sevenDayDelta: '+3.2' },
+      streak: { days: cleanDays, targetDays: this.settings.targetDays, progressRatio: cleanDays / this.settings.targetDays },
+      receptors: {
+        d2: { value: '74%', status: 'good' },
+        pfc: { value: '81%', status: 'good' },
+        cortisol: { value: '↑ 18%', status: 'warn' },
+        prolactin: { value: '↓ 12%', status: 'good' }
+      }
+    };
+  },
+
+  renderTelemetry() {
+    if (!this.telemetry) return;
+    const t = this.telemetry;
+
+    // 1. NII Score
+    const scoreEl = document.getElementById('nii-score-val');
+    if (scoreEl) scoreEl.textContent = t.nii.score;
+    const barEl = document.getElementById('nii-bar');
+    if (barEl) barEl.style.width = `${t.nii.score}%`;
+
+    // 2. Streak
+    const streakVal = document.querySelector('.streak-value');
+    if (streakVal) streakVal.textContent = t.streak.days;
+    const streakSub = document.querySelector('.streak-sublabel');
+    if (streakSub && t.streak.phaseTitle) streakSub.textContent = t.streak.phaseTitle;
+    const arcCircle = document.getElementById('arc-circle');
+    if (arcCircle) {
+      const circum = 251.2;
+      const progress = Math.min(1.0, t.streak.days / Math.max(1, t.streak.targetDays || 90));
+      arcCircle.style.strokeDashoffset = circum * (1 - progress);
+    }
+
+    // 3. Receptors
+    if (t.receptors) {
+      const r = t.receptors;
+      const cells = document.querySelectorAll('.receptor-cell');
+      if (cells.length >= 4) {
+        cells[0].querySelector('.receptor-val').textContent = r.d2.value;
+        cells[1].querySelector('.receptor-val').textContent = r.pfc.value;
+        cells[2].querySelector('.receptor-val').textContent = r.cortisol.value;
+        cells[3].querySelector('.receptor-val').textContent = r.prolactin.value;
+      }
+    }
+  },
+
+  async loadIncidents() {
+    if (this.apiAvailable) {
+      try {
+        const res = await fetch('/api/blackbox');
+        if (res.ok) {
+          const json = await res.json();
+          this.incidents = json.data;
+          this.renderIncidents();
+          return;
+        }
+      } catch (e) {
+        console.warn('Error fetching incidents:', e);
+      }
+    }
+    // Fallback incidents
+    const local = localStorage.getItem('neuro_incidents');
+    if (local) {
+      try { this.incidents = JSON.parse(local); } catch(e){}
+    }
+    this.renderIncidents();
+  },
+
+  renderIncidents() {
+    const listMini = document.querySelector('.blackbox-list');
+    const listFull = document.getElementById('blackbox-full-list');
+    const itemsHtml = this.incidents.slice(0, 8).map(inc => {
+      let icon = '◆';
+      let iconClass = 'cyan-bg';
+      if (inc.type === 'crit') { icon = '▲'; iconClass = 'rose-bg'; }
+      if (inc.type === 'warn') { icon = '⚠'; iconClass = 'amber-bg'; }
+
+      const timeFormatted = new Date(inc.timestamp).toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' });
+      return `
+        <div class="bb-entry" tabindex="0">
+          <div class="bb-icon ${iconClass}">${icon}</div>
+          <div class="bb-content">
+            <div class="bb-title">${inc.title || inc.trigger}</div>
+            <div class="bb-meta">${inc.timeSlot} · ${timeFormatted}</div>
+            ${inc.analysis ? `<div style="font-size:11px;color:var(--text-secondary);margin-top:4px">${inc.analysis}</div>` : ''}
+          </div>
+          <div class="bb-tag ${inc.type || 'info'}">${inc.tag || 'DEBRIEF'}</div>
+        </div>
+      `;
+    }).join('');
+
+    if (listMini) listMini.innerHTML = itemsHtml;
+    if (listFull) listFull.innerHTML = itemsHtml;
+  },
+
+  async submitLog(timeSlot, trigger) {
+    if (this.apiAvailable) {
+      try {
+        const res = await fetch('/api/blackbox', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ timeSlot, trigger })
+        });
+        if (res.ok) {
+          const json = await res.json();
+          showToast(json.message, 'warn');
+          if (json.data && json.data.rootCause) {
+            setTimeout(() => {
+              showToast(`پروتکل پیشنهادی: ${json.data.rootCause.prescribedProtocol}`, 'info');
+            }, 1200);
+          }
+          if (json.data.updatedTelemetry) {
+            this.telemetry = json.data.updatedTelemetry;
+            this.renderTelemetry();
+          }
+          await this.loadIncidents();
+          return;
+        }
+      } catch (e) {
+        console.warn('API log error, falling back to local:', e);
+      }
+    }
+
+    // Local fallback
+    const newEntry = {
+      id: Date.now(),
+      timestamp: new Date().toISOString(),
+      timeSlot,
+      trigger,
+      tag: 'NEW',
+      type: 'warn',
+      title: `رویداد ثبت شد — ${trigger}`,
+      analysis: 'تغییر فوری محیط و پیگیری ۵ چرخه تنفس فیزیولوژیک هاب‌من توصیه می‌شود.'
+    };
+    this.incidents.unshift(newEntry);
+    localStorage.setItem('neuro_incidents', JSON.stringify(this.incidents));
+    this.renderIncidents();
+    showToast('رویداد در حافظه محلی جعبه سیاه ثبت شد.', 'warn');
+  },
+
+  async recordStroop(score, total, accuracy, avgReactionTimeMs) {
+    if (this.apiAvailable) {
+      try {
+        const res = await fetch('/api/emergency/stroop', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ score, total, accuracy, avgReactionTimeMs })
+        });
+        if (res.ok) {
+          const json = await res.json();
+          if (json.data && json.data.updatedTelemetry) {
+            this.telemetry = json.data.updatedTelemetry;
+            this.renderTelemetry();
+          }
+          showToast('تمرین استروپ ثبت شد؛ قشر قدامی کمربندی (ACC) فعال گردید.', 'success');
+        }
+      } catch (e) {
+        console.warn('Stroop post error:', e);
+      }
+    }
+  },
+
+  async recordSigh(cycles, completed) {
+    if (this.apiAvailable) {
+      try {
+        await fetch('/api/emergency/sigh', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ cycles, completed })
+        });
+      } catch (e) {}
+    }
+    showToast('پروتکل تنفس هاب‌من ثبت شد — عصب واگ تحریک شد.', 'success');
+  },
+
+  async recordFriction(actionId, actionTitle) {
+    if (this.apiAvailable) {
+      try {
+        await fetch('/api/emergency/friction', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ actionId, actionTitle })
+        });
+      } catch (e) {}
+    }
+    showToast(`اصطکاک فیزیکی فعال شد: ${actionTitle}`, 'info');
+  },
+
+  async loadSettings() {
+    if (this.apiAvailable) {
+      try {
+        const res = await fetch('/api/settings');
+        if (res.ok) {
+          const json = await res.json();
+          this.settings = json.data;
+        }
+      } catch (e) {}
+    }
+    // populate settings fields if present
+    const inputs = document.querySelectorAll('.settings-form .settings-input');
+    if (inputs.length >= 3) {
+      inputs[0].value = this.settings.displayName || 'کاربر';
+      inputs[1].value = this.settings.targetDays || 90;
+      inputs[2].value = this.settings.reminderTime || '08:00';
+    }
+  },
+
+  async saveSettings() {
+    const inputs = document.querySelectorAll('.settings-form .settings-input');
+    if (inputs.length >= 3) {
+      this.settings.displayName = inputs[0].value;
+      this.settings.targetDays = parseInt(inputs[1].value) || 90;
+      this.settings.reminderTime = inputs[2].value;
+    }
+    if (this.apiAvailable) {
+      try {
+        const res = await fetch('/api/settings', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(this.settings)
+        });
+        if (res.ok) {
+          showToast('تنظیمات بالینی با موفقیت در دیتابیس سرور ذخیره شد.', 'success');
+          return;
+        }
+      } catch (e) {}
+    }
+    localStorage.setItem('neuro_settings', JSON.stringify(this.settings));
+    showToast('تنظیمات در حافظه لوکس محلی ذخیره شد.', 'success');
+  }
+};
+
+window.saveSettings = () => NeuroSync.saveSettings();
+window.recalibrateSystem = async () => {
+  await NeuroSync.init();
+  showToast('سیستم تلمتری مجدداً کالیبره و همگام شد.', 'success');
+};
+
+// ═══════════════════════════════════════════
+// TAB SWITCHING (Handles all 5 views)
+// ═══════════════════════════════════════════
+function switchTab(id, btn) {
+  document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-tabs button').forEach(b => b.classList.remove('active'));
+  const section = document.getElementById(id);
+  if (section) section.classList.add('active');
+  if (btn) btn.classList.add('active');
+
+  // Trigger specialized canvas renders
+  if (id === 'dopamine-view') {
+    setTimeout(renderFullDopamine, 50);
+  }
+  if (id === 'emergency-view') {
+    newStroopRound(true);
+  }
+}
+
+// ═══════════════════════════════════════════
+// SYNAPTIC MESH CANVAS
+// ═══════════════════════════════════════════
+(function() {
+  const canvas = document.getElementById('synaptic-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  let W, H, nodes, t = 0;
+  const NODE_COUNT = 65;
+  const CONNECT_DIST = 150;
+
+  function resize() {
+    W = canvas.width  = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  }
+
+  function randBetween(a, b) { return a + Math.random() * (b - a); }
+
+  function initNodes() {
+    nodes = Array.from({ length: NODE_COUNT }, () => ({
+      x: randBetween(0, W),
+      y: randBetween(0, H),
+      vx: randBetween(-0.25, 0.25),
+      vy: randBetween(-0.25, 0.25),
+      r: randBetween(1.5, 3.5),
+      pulse: randBetween(0, Math.PI * 2),
+      color: Math.random() > 0.5 ? '#00f2fe' : '#05d5b3',
+      alpha: randBetween(0.4, 0.9),
+    }));
+  }
+
+  function drawFrame() {
+    ctx.clearRect(0, 0, W, H);
+    t += 0.008;
+
+    for (let i = 0; i < nodes.length; i++) {
+      const a = nodes[i];
+      for (let j = i + 1; j < nodes.length; j++) {
+        const b = nodes[j];
+        const dx = a.x - b.x, dy = a.y - b.y;
+        const dist = Math.sqrt(dx*dx + dy*dy);
+        if (dist < CONNECT_DIST) {
+          const strength = 1 - dist / CONNECT_DIST;
+          ctx.beginPath();
+          ctx.moveTo(a.x, a.y);
+          const mx = (a.x + b.x) / 2 + Math.sin(t + i) * 12;
+          const my = (a.y + b.y) / 2 + Math.cos(t + j) * 12;
+          ctx.quadraticCurveTo(mx, my, b.x, b.y);
+          ctx.strokeStyle = `rgba(0,242,254,${strength * 0.18})`;
+          ctx.lineWidth = strength * 0.8;
+          ctx.stroke();
+        }
+      }
+    }
+
+    nodes.forEach((n) => {
+      const pulse = Math.sin(t * 1.8 + n.pulse) * 0.5 + 0.5;
+      const grd = ctx.createRadialGradient(n.x, n.y, 0, n.x, n.y, n.r * 5);
+      grd.addColorStop(0, n.color + '33');
+      grd.addColorStop(1, 'transparent');
+      ctx.beginPath();
+      ctx.arc(n.x, n.y, n.r * 5, 0, Math.PI * 2);
+      ctx.fillStyle = grd;
+      ctx.fill();
+
+      ctx.beginPath();
+      ctx.arc(n.x, n.y, n.r * (0.7 + pulse * 0.5), 0, Math.PI * 2);
+      ctx.fillStyle = n.color + Math.floor(n.alpha * 255).toString(16).padStart(2,'0');
+      ctx.fill();
+
+      n.x += n.vx;
+      n.y += n.vy;
+      if (n.x < -20) n.x = W + 20;
+      if (n.x > W + 20) n.x = -20;
+      if (n.y < -20) n.y = H + 20;
+      if (n.y > H + 20) n.y = -20;
+    });
+
+    requestAnimationFrame(drawFrame);
+  }
+
+  resize();
+  initNodes();
+  drawFrame();
+  window.addEventListener('resize', () => { resize(); initNodes(); });
+})();
+
+// ═══════════════════════════════════════════
+// DOPAMINE SIMULATION CANVASES (Mini & Full)
+// ═══════════════════════════════════════════
+let currentDopMode = 'stable';
+let dopAnimT = 0;
+
+const curves = {
+  stable: t => 0.5 + Math.sin(t * 0.4) * 0.05 + Math.sin(t * 1.1) * 0.02,
+  crash: t => {
+    const x = t / Math.PI;
+    if (x < 1)   return 0.5 + x * 0.45;
+    if (x < 1.3) return 0.95 - (x-1) * 1.8;
+    if (x < 2.5) return Math.max(0.08, 0.41 - (x-1.3)*0.22);
+    return 0.18 + Math.sin(t*0.3)*0.04;
+  },
+  recovery: t => {
+    const x = t / Math.PI;
+    if (x < 0.5) return 0.35;
+    return 0.35 + Math.log(1 + (x - 0.5) * 0.5) * 0.25 + Math.sin(t*0.7)*0.03;
+  }
+};
+
+function renderDopamineCanvas(canvas, mode) {
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0, 0, W, H);
+
+  // Grid
+  ctx.strokeStyle = 'rgba(255,255,255,0.04)';
+  ctx.lineWidth = 1;
+  for (let i = 0; i <= 4; i++) {
+    const y = H * 0.1 + (H * 0.8) * (i / 4);
+    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+  }
+
+  // Baseline
+  const baseY = H * 0.1 + (H * 0.8) * 0.5;
+  ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+  ctx.setLineDash([4, 8]);
+  ctx.beginPath(); ctx.moveTo(0, baseY); ctx.lineTo(W, baseY); ctx.stroke();
+  ctx.setLineDash([]);
+
+  const STEPS = W;
+  const fn = curves[mode] || curves.stable;
+
+  // Background ghost curve
+  if (mode !== 'crash') {
+    ctx.beginPath();
+    for (let i = 0; i <= STEPS; i++) {
+      const x = i / STEPS;
+      const tv = x * Math.PI * 3;
+      const v = curves.crash(tv);
+      const px = i;
+      const py = H * 0.1 + (1 - v) * H * 0.8;
+      i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+    }
+    ctx.strokeStyle = 'rgba(244,63,94,0.18)';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+  }
+
+  // Active curve
+  ctx.beginPath();
+  for (let i = 0; i <= STEPS; i++) {
+    const x = i / STEPS;
+    const tv = x * Math.PI * 3;
+    const v = fn(tv);
+    const px = i;
+    const py = H * 0.1 + (1 - Math.min(1, Math.max(0, v))) * H * 0.8;
+    i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+  }
+  ctx.strokeStyle = mode === 'crash' ? '#f43f5e' : mode === 'recovery' ? '#05d5b3' : '#00f2fe';
+  ctx.lineWidth = 2.5;
+  ctx.stroke();
+
+  // Fill gradient
+  ctx.lineTo(W, H); ctx.lineTo(0, H); ctx.closePath();
+  const fillGrad = ctx.createLinearGradient(0, 0, 0, H);
+  const mainColor = mode === 'crash' ? '244,63,94' : mode === 'recovery' ? '5,213,179' : '0,242,254';
+  fillGrad.addColorStop(0, `rgba(${mainColor},0.15)`);
+  fillGrad.addColorStop(1, `rgba(${mainColor},0)`);
+  ctx.fillStyle = fillGrad;
+  ctx.fill();
+
+  // Moving position indicator
+  const posX = (Math.sin(dopAnimT * 0.3) * 0.1 + 0.55) * W;
+  const tv = (posX / W) * Math.PI * 3;
+  const posY = H * 0.1 + (1 - Math.min(1, Math.max(0, fn(tv)))) * H * 0.8;
+  ctx.beginPath();
+  ctx.arc(posX, posY, 5, 0, Math.PI*2);
+  ctx.fillStyle = '#05d5b3';
+  ctx.fill();
+
+  // Text
+  ctx.font = '10px JetBrains Mono';
+  ctx.fillStyle = 'rgba(255,255,255,0.3)';
+  ctx.fillText('اوج انگیزه', 10, H * 0.14);
+  ctx.fillText('هموستاز پایه', 10, baseY - 6);
+  ctx.fillText('افسردگی و آنهدونیا', 10, H * 0.92);
+}
+
+function animateDopamine() {
+  dopAnimT += 0.05;
+  const mini = document.getElementById('dopamine-canvas-mini');
+  if (mini) renderDopamineCanvas(mini, currentDopMode);
+  const full = document.getElementById('dopamine-canvas-full');
+  if (full && full.offsetParent !== null) renderDopamineCanvas(full, currentDopMode);
+  requestAnimationFrame(animateDopamine);
+}
+
+function resizeDopamineCanvases() {
+  const mini = document.getElementById('dopamine-canvas-mini');
+  if (mini && mini.parentElement) {
+    mini.width = mini.parentElement.getBoundingClientRect().width || 600;
+    mini.height = 240;
+  }
+  const full = document.getElementById('dopamine-canvas-full');
+  if (full && full.parentElement) {
+    full.width = full.parentElement.getBoundingClientRect().width || 800;
+    full.height = 320;
+  }
+}
+
+function renderFullDopamine() {
+  resizeDopamineCanvases();
+  const full = document.getElementById('dopamine-canvas-full');
+  if (full) renderDopamineCanvas(full, currentDopMode);
+}
+
+window.setDopMode = function(mode, btn) {
+  currentDopMode = mode;
+  document.querySelectorAll('.dop-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  const full = document.getElementById('dopamine-canvas-full');
+  if (full) renderDopamineCanvas(full, mode);
+};
+
+// ═══════════════════════════════════════════
+// AUDIO ENGINE (Web Audio API Binaural 40Hz)
+// ═══════════════════════════════════════════
+let audioCtx = null;
+let leftOsc = null, rightOsc = null, gainNode = null;
+let isAudioPlaying = false;
+let vizInterval = null;
+
+(function initVizBars() {
+  const viz = document.getElementById('audio-viz');
+  if (!viz) return;
+  for (let i = 0; i < 24; i++) {
+    const bar = document.createElement('div');
+    bar.className = 'audio-bar';
+    bar.style.height = '8px';
+    viz.appendChild(bar);
+  }
+})();
+
+function toggleAudio() {
+  if (isAudioPlaying) stopAudio();
+  else startAudio();
+}
+
+function startAudio() {
+  try {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    gainNode = audioCtx.createGain();
+    const vol = document.getElementById('vol-slider').value;
+    gainNode.gain.value = vol / 100 * 0.22;
+
+    const merger = audioCtx.createChannelMerger(2);
+    leftOsc = audioCtx.createOscillator();
+    leftOsc.type = 'sine';
+    leftOsc.frequency.value = 200; // Left ear: 200Hz
+
+    rightOsc = audioCtx.createOscillator();
+    rightOsc.type = 'sine';
+    rightOsc.frequency.value = 240; // Right ear: 240Hz -> 40Hz Gamma beat
+
+    const leftGain  = audioCtx.createGain(); leftGain.gain.value = 1;
+    const rightGain = audioCtx.createGain(); rightGain.gain.value = 1;
+
+    leftOsc.connect(leftGain);
+    rightOsc.connect(rightGain);
+    leftGain.connect(merger, 0, 0);
+    rightGain.connect(merger, 0, 1);
+    merger.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
+
+    leftOsc.start();
+    rightOsc.start();
+    isAudioPlaying = true;
+
+    document.getElementById('audio-play-btn').textContent = '⏸';
+    showToast('امواج گاما ۴۰ هرتز فعال شد (تمرکز عمیق و آرام‌سازی سمپاتیک)', 'info');
+
+    const bars = document.querySelectorAll('.audio-bar');
+    vizInterval = setInterval(() => {
+      bars.forEach((bar, i) => {
+        const h = 4 + Math.abs(Math.sin(Date.now()*0.003 + i*0.7)) * 42;
+        bar.style.height = h + 'px';
+      });
+    }, 50);
+  } catch(e) {
+    console.warn('Audio error:', e);
+  }
+}
+
+function stopAudio() {
+  if (leftOsc) { try { leftOsc.stop(); } catch(e){} leftOsc = null; }
+  if (rightOsc) { try { rightOsc.stop(); } catch(e){} rightOsc = null; }
+  if (audioCtx) { try { audioCtx.close(); } catch(e){} audioCtx = null; }
+  isAudioPlaying = false;
+  document.getElementById('audio-play-btn').textContent = '▶';
+  clearInterval(vizInterval);
+  document.querySelectorAll('.audio-bar').forEach(b => b.style.height = '8px');
+}
+
+function setVolume(val) {
+  const el = document.getElementById('vol-val');
+  if (el) el.textContent = val;
+  if (gainNode) gainNode.gain.value = val / 100 * 0.22;
+}
+
+// ═══════════════════════════════════════════
+// PHYSIOLOGICAL SIGH PACER (Mini & Full View)
+// ═══════════════════════════════════════════
+let sighRunning = false;
+let sighCycle = 0;
+let sighPhase = 0;
+let sighTimer = null;
+
+const SIGH_PHASES = [
+  { label: 'دم اول', duration: 1.5, fill: 0.35, desc: 'از بینی نفس بکشید — شکم را پر کنید' },
+  { label: 'دم دوم', duration: 0.8, fill: 0.65, desc: 'دوباره از بینی — ریه را کاملاً پر کنید' },
+  { label: 'نگه دار', duration: 0.5, fill: 0.70, desc: 'یک لحظه نگه دارید...' },
+  { label: 'بازدم طولانی', duration: 5.0, fill: 1.0, desc: 'آرام از دهان بازدم کنید — بسیار آهسته' },
+  { label: 'مکث', duration: 1.0, fill: 0.0, desc: 'مکث قبل از چرخه بعد' }
+];
+
+function toggleSigh(isFull = false) {
+  if (sighRunning) stopSigh();
+  else startSigh();
+}
+
+function startSigh() {
+  sighRunning = true;
+  sighCycle = 0;
+  sighPhase = 0;
+  updateSighButtons('توقف');
+  runSighStep();
+}
+
+function stopSigh() {
+  sighRunning = false;
+  clearTimeout(sighTimer);
+  updateSighButtons('شروع پروتکل تنفسی');
+  updateSighText('آماده', 'چرخه ۰/۵', 'تنفس فیزیولوژیک هاب‌من: دو دم کوتاه از بینی، یک بازدم طولانی از دهان');
+  setSighRingProgress(0);
+}
+
+function updateSighButtons(txt) {
+  const b1 = document.getElementById('sigh-btn');
+  if (b1) b1.textContent = txt;
+  const b2 = document.getElementById('sigh-btn-full');
+  if (b2) b2.textContent = txt;
+}
+
+function updateSighText(action, cycle, instruction) {
+  ['', '-full'].forEach(s => {
+    const act = document.getElementById(`sigh-action-text${s}`);
+    if (act) act.textContent = action;
+    const cyc = document.getElementById(`sigh-cycle-text${s}`);
+    if (cyc) cyc.textContent = cycle;
+    const ins = document.getElementById(`sigh-instruction${s}`);
+    if (ins) ins.textContent = instruction;
+  });
+}
+
+function setSighRingProgress(fill) {
+  const circumference = 263.9;
+  ['sigh-ring', 'sigh-ring-full'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.strokeDashoffset = circumference * (1 - fill);
+  });
+}
+
+function runSighStep() {
+  if (!sighRunning) return;
+  if (sighCycle >= 5) {
+    stopSigh();
+    updateSighText('کامل شد', 'چرخه ۵/۵', 'عالی — سیستم عصبی پاراسمپاتیک فعال و ضربان تثبیت شد.');
+    NeuroSync.recordSigh(5, true);
+    return;
+  }
+
+  const phase = SIGH_PHASES[sighPhase];
+  updateSighText(phase.label, `چرخه ${sighCycle+1}/۵`, phase.desc);
+
+  const startFill = sighPhase === 0 ? 0 : SIGH_PHASES[sighPhase-1].fill;
+  const endFill = phase.fill;
+  const startTime = Date.now();
+  const dur = phase.duration * 1000;
+
+  function animRing() {
+    const elapsed = Date.now() - startTime;
+    const p = Math.min(1, elapsed / dur);
+    const fill = startFill + (endFill - startFill) * p;
+    setSighRingProgress(fill);
+    if (p < 1 && sighRunning) requestAnimationFrame(animRing);
+  }
+  animRing();
+
+  sighTimer = setTimeout(() => {
+    sighPhase++;
+    if (sighPhase >= SIGH_PHASES.length) {
+      sighPhase = 0;
+      sighCycle++;
+    }
+    runSighStep();
+  }, phase.duration * 1000);
+}
+
+// ═══════════════════════════════════════════
+// STROOP INTERFERENCE ENGINE (Mini & Full)
+// ═══════════════════════════════════════════
+const STROOP_WORDS = [
+  { text: 'آبی', display: '#f43f5e', label: 'قرمز' },
+  { text: 'قرمز', display: '#3b82f6', label: 'آبی' },
+  { text: 'سبز', display: '#f59e0b', label: 'زرد' },
+  { text: 'زرد', display: '#00f2fe', label: 'فیروزه‌ای' },
+  { text: 'سفید', display: '#05d5b3', label: 'سبز' },
+  { text: 'نارنجی', display: '#f43f5e', label: 'قرمز' }
+];
+const STROOP_PALETTE = ['قرمز', 'آبی', 'زرد', 'سبز', 'فیروزه‌ای'];
+
+let stroopScore = 0, stroopTotal = 0, stroopCorrectColor = '';
+let stroopStartTime = 0;
+let reactionTimes = [];
+
+function newStroopRound(isFull = false) {
+  const item = STROOP_WORDS[Math.floor(Math.random() * STROOP_WORDS.length)];
+  stroopCorrectColor = item.label;
+  stroopStartTime = performance.now();
+
+  const wordTargets = [document.getElementById('stroop-word'), document.getElementById('stroop-word-full')];
+  wordTargets.forEach(el => {
+    if (el) {
+      el.textContent = item.text;
+      el.style.color = item.display;
+    }
+  });
+
+  const chosen = new Set([item.label]);
+  while (chosen.size < 4) chosen.add(STROOP_PALETTE[Math.floor(Math.random() * STROOP_PALETTE.length)]);
+  const shuffled = [...chosen].sort(() => Math.random() - 0.5);
+
+  ['stroop-choices', 'stroop-choices-full'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.innerHTML = '';
+    shuffled.forEach(c => {
+      const btn = document.createElement('button');
+      btn.className = 'stroop-choice';
+      btn.textContent = c;
+      btn.onclick = () => answerStroop(c, btn);
+      el.appendChild(btn);
+    });
+  });
+
+  ['stroop-feedback', 'stroop-feedback-full'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = '';
+  });
+}
+
+function answerStroop(answer, btn) {
+  const rt = performance.now() - stroopStartTime;
+  reactionTimes.push(rt);
+  stroopTotal++;
+  const correct = answer === stroopCorrectColor;
+  if (correct) stroopScore++;
+
+  const feedbackText = correct ? `درست! (${Math.round(rt)}ms)` : 'اشتباه — رنگ نوشته مهم است نه معنا';
+  const feedbackColor = correct ? 'var(--emerald)' : 'var(--rose)';
+
+  ['stroop-feedback', 'stroop-feedback-full'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.textContent = feedbackText;
+      el.style.color = feedbackColor;
+    }
+  });
+
+  ['stroop-score', 'stroop-score-full'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = stroopScore;
+  });
+
+  const accStr = stroopTotal > 0 ? Math.round(stroopScore/stroopTotal*100) + '%' : '—';
+  ['stroop-acc', 'stroop-acc-full'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = accStr;
+  });
+
+  document.querySelectorAll('.stroop-choice').forEach(b => b.disabled = true);
+
+  if (stroopTotal % 5 === 0) {
+    const avgRt = reactionTimes.reduce((a,b)=>a+b, 0) / reactionTimes.length;
+    NeuroSync.recordStroop(stroopScore, stroopTotal, stroopScore/stroopTotal, avgRt);
+  }
+
+  setTimeout(() => newStroopRound(), 750);
+}
+
+// ═══════════════════════════════════════════
+// EMERGENCY PHASE SWITCHER & FRICTION
+// ═══════════════════════════════════════════
+function switchPhase(phase, btn) {
+  document.querySelectorAll('.phase-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+
+  const sigh = document.getElementById('sigh-pacer');
+  const stroop = document.getElementById('stroop-game');
+  const friction = document.getElementById('friction-phase');
+
+  if (sigh) sigh.style.display = phase === 1 ? 'flex' : 'none';
+  if (stroop) {
+    stroop.style.display = phase === 2 ? 'flex' : 'none';
+    if (phase === 2) newStroopRound();
+  }
+  if (friction) friction.style.display = phase === 3 ? 'flex' : 'none';
+}
+
+function toggleFriction(el) {
+  el.classList.toggle('done');
+  const title = el.querySelector('.friction-title')?.textContent || 'اصطکاک';
+  NeuroSync.recordFriction('friction', title);
+}
+
+function toggleFrictionAction(id, title, el) {
+  el.classList.toggle('done');
+  NeuroSync.recordFriction(id, title);
+}
+
+// ═══════════════════════════════════════════
+// BLACK BOX MODAL
+// ═══════════════════════════════════════════
+function openModal() {
+  document.getElementById('log-modal').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('log-modal').classList.remove('open');
+}
+
+async function submitLog() {
+  const timeSlot = document.getElementById('modal-time').value;
+  const trigger = document.getElementById('modal-trigger').value;
+  closeModal();
+  await NeuroSync.submitLog(timeSlot, trigger);
+}
+
+// ═══════════════════════════════════════════
+// INITIALIZATION
+// ═══════════════════════════════════════════
+window.addEventListener('load', () => {
+  resizeDopamineCanvases();
+  animateDopamine();
+  newStroopRound();
+  NeuroSync.init();
+});
+
+window.addEventListener('resize', resizeDopamineCanvases);
+
+document.getElementById('log-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+</script>
+</body>
+</html>
