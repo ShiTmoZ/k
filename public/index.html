@@ -42,11 +42,49 @@
 </style>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>NEUROSHIFT — Neural Integrity Console</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  @font-face {
+    font-family: 'Vazirmatn';
+    src: url('fonts/Vazirmatn-Regular.woff2') format('woff2');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: 'Vazirmatn';
+    src: url('fonts/Vazirmatn-Medium.woff2') format('woff2');
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: 'Vazirmatn';
+    src: url('fonts/Vazirmatn-Bold.woff2') format('woff2');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: 'JetBrains Mono';
+    src: url('fonts/JetBrainsMono-Regular.woff2') format('woff2');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: 'JetBrains Mono';
+    src: url('fonts/JetBrainsMono-Bold.woff2') format('woff2');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+  }
+</style>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  button, input, select, textarea {
+    font-family: inherit;
+  }
 
   :root {
     --void: #030508;
@@ -1207,12 +1245,12 @@
       <!-- Neural Integrity Index -->
       <div class="panel cell-neural-index">
         <div class="panel-label">شاخص یکپارچگی عصبی</div>
-        <div class="nii-score" id="nii-score-val">78.4</div>
+        <div class="nii-score" id="nii-score-val">25.0</div>
         <div class="nii-unit">Neural Integrity & Synaptic Stability Index</div>
-        <div class="nii-delta">▲ 3.2 در 7 روز گذشته</div>
-        <div class="nii-subtitle">میانگین متحرک تراکم سیناپسی پیش‌پیشانی در 30 روز — مستقل از رویدادها</div>
+        <div class="nii-delta">۰.۰ در ۷ روز گذشته (خط پایه)</div>
+        <div class="nii-subtitle">آغاز پایش خط پایه نوروبیولوژیک — تثبیت روز ۰</div>
         <div class="nii-bar-track">
-          <div class="nii-bar-fill" id="nii-bar" style="width:78.4%"></div>
+          <div class="nii-bar-fill" id="nii-bar" style="width:25%"></div>
         </div>
       </div>
 
@@ -1224,7 +1262,7 @@
             <svg viewBox="0 0 100 100">
               <circle cx="50" cy="50" r="40" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="7" stroke-linecap="round"/>
               <circle cx="50" cy="50" r="40" fill="none" stroke="url(#arcGrad)" stroke-width="7" stroke-linecap="round"
-                stroke-dasharray="251.2" stroke-dashoffset="62.8" id="arc-circle"/>
+                stroke-dasharray="251.2" stroke-dashoffset="251.2" id="arc-circle"/>
               <defs>
                 <linearGradient id="arcGrad" x1="0%" y1="0%" x2="100%" y2="0%">
                   <stop offset="0%" stop-color="#05d5b3"/>
@@ -1233,8 +1271,8 @@
               </defs>
             </svg>
           </div>
-          <div class="streak-value">18</div>
-          <div class="streak-sublabel">روز در فاز بازسازی</div>
+          <div class="streak-value">0</div>
+          <div class="streak-sublabel">روز پاکی (خط پایه اولیه)</div>
         </div>
       </div>
 
@@ -1271,19 +1309,19 @@
         <div class="receptor-grid">
           <div class="receptor-cell">
             <div class="receptor-name">D2 Receptor</div>
-            <div class="receptor-val good">74%</div>
+            <div class="receptor-val warn">34%</div>
           </div>
           <div class="receptor-cell">
             <div class="receptor-name">PFC Density</div>
-            <div class="receptor-val good">81%</div>
+            <div class="receptor-val warn">38%</div>
           </div>
           <div class="receptor-cell">
             <div class="receptor-name">Cortisol</div>
-            <div class="receptor-val warn">↑ 18%</div>
+            <div class="receptor-val warn">↑ 58%</div>
           </div>
           <div class="receptor-cell">
             <div class="receptor-name">Prolactin</div>
-            <div class="receptor-val good">↓ 12%</div>
+            <div class="receptor-val warn">↑ 42%</div>
           </div>
         </div>
       </div>
@@ -1614,9 +1652,10 @@
           <button class="toggle-switch" onclick="this.classList.toggle('on')" aria-label="toggle"></button>
         </div>
 
-        <div style="display:flex;gap:10px;margin-top:16px;">
+        <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;">
           <button class="modal-btn-primary" onclick="saveSettings()" style="background:rgba(0,242,254,0.18);border-color:rgba(0,242,254,0.4);color:var(--cyan)">ذخیره تنظیمات</button>
           <button class="modal-btn-cancel" onclick="recalibrateSystem()">کالیبراسیون و همگام‌سازی</button>
+          <button class="modal-btn-cancel" onclick="resetToDayZero()" style="color:var(--rose);border-color:rgba(244,63,94,0.3)">شروع از روز ۰ (ریست دوره)</button>
         </div>
       </div>
 
@@ -1679,7 +1718,7 @@ const NeuroSync = {
     highRiskAlert: true,
     autoGamma: true,
     deepFocusFriction: false,
-    startDate: new Date(Date.now() - 18 * 86400 * 1000).toISOString()
+    startDate: new Date().toISOString()
   },
 
   async init() {
@@ -1705,20 +1744,45 @@ const NeuroSync = {
   },
 
   initLocalFallback() {
-    // Local storage fallback for completely isolated execution
-    const savedSettings = localStorage.getItem('neuro_settings');
-    if (savedSettings) {
-      try { this.settings = JSON.parse(savedSettings); } catch(e){}
+    // Guarantee fresh clean Day 0 baseline on first launch / version upgrade
+    if (!localStorage.getItem('neuro_initialized_v2')) {
+      localStorage.removeItem('neuro_settings');
+      localStorage.removeItem('neuro_incidents');
+      localStorage.setItem('neuro_initialized_v2', 'true');
+      this.settings.startDate = new Date().toISOString();
+    } else {
+      const savedSettings = localStorage.getItem('neuro_settings');
+      if (savedSettings) {
+        try { this.settings = JSON.parse(savedSettings); } catch(e){}
+      }
     }
-    const cleanDays = Math.max(1, Math.floor((Date.now() - new Date(this.settings.startDate).getTime()) / (1000 * 86400)));
+    if (!this.settings.startDate) {
+      this.settings.startDate = new Date().toISOString();
+    }
+    const cleanDays = Math.max(0, Math.floor((Date.now() - new Date(this.settings.startDate).getTime()) / (1000 * 86400)));
+    const targetDays = this.settings.targetDays || 90;
+    
+    // Asymptotic biological curve simulation for offline client
+    const d2Val = Math.min(94, Math.round(34 + 58 * (1 - Math.exp(-cleanDays / 30))));
+    const pfcVal = Math.min(95, Math.round(38 + 52 * (1 - Math.exp(-cleanDays / 35))));
+    const niiScore = Math.min(99.4, Math.round((cleanDays === 0 ? 25.0 : 25.0 + 70.0 * (1 - Math.exp(-cleanDays / 32))) * 10) / 10);
+    
     this.telemetry = {
-      nii: { score: 78.4, sevenDayDelta: '+3.2' },
-      streak: { days: cleanDays, targetDays: this.settings.targetDays, progressRatio: cleanDays / this.settings.targetDays },
+      nii: { 
+        score: niiScore, 
+        sevenDayDelta: cleanDays === 0 ? '۰.۰ (شروع دوره)' : '+2.4' 
+      },
+      streak: { 
+        days: cleanDays, 
+        targetDays: targetDays, 
+        progressRatio: cleanDays / targetDays,
+        phaseTitle: cleanDays === 0 ? 'روز ۰ — آغاز بازنشانی خط پایه' : `فاز ریکاوری نورونی (${cleanDays} روز)`
+      },
       receptors: {
-        d2: { value: '74%', status: 'good' },
-        pfc: { value: '81%', status: 'good' },
-        cortisol: { value: '↑ 18%', status: 'warn' },
-        prolactin: { value: '↓ 12%', status: 'good' }
+        d2: { value: `${d2Val}%`, status: cleanDays > 14 ? 'good' : 'warn' },
+        pfc: { value: `${pfcVal}%`, status: cleanDays > 21 ? 'good' : 'warn' },
+        cortisol: { value: cleanDays < 7 ? '↑ 58%' : '↓ 15%', status: cleanDays < 7 ? 'warn' : 'good' },
+        prolactin: { value: cleanDays < 10 ? '↑ 42%' : '↓ 12%', status: cleanDays < 10 ? 'warn' : 'good' }
       }
     };
   },
@@ -1945,6 +2009,26 @@ const NeuroSync = {
 };
 
 window.saveSettings = () => NeuroSync.saveSettings();
+
+window.resetToDayZero = function() {
+  if (!confirm('آیا مایلید سیستم را به روز ۰ (شروع مجدد دوره بدون سرزنش اخلاقی) بازنشانی کنید؟')) return;
+  NeuroSync.settings.startDate = new Date().toISOString();
+  localStorage.setItem('neuro_settings', JSON.stringify(NeuroSync.settings));
+  localStorage.removeItem('neuro_incidents');
+  NeuroSync.incidents = [];
+  if (NeuroSync.apiAvailable) {
+    fetch('/api/settings', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(NeuroSync.settings)
+    }).catch(()=>{});
+  }
+  NeuroSync.initLocalFallback();
+  NeuroSync.renderTelemetry();
+  NeuroSync.renderIncidents();
+  showToast('سیستم با موفقیت به روز ۰ بازنشانی شد. تمرکز روی ریکاوری نورونی است.', 'success');
+};
+
 window.recalibrateSystem = async () => {
   await NeuroSync.init();
   showToast('سیستم تلمتری مجدداً کالیبره و همگام شد.', 'success');

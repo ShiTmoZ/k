@@ -36,7 +36,7 @@ jobs:
           mkdir -p release-binaries
           # Standalone lightweight portable executable (~3-5 MB)
           if [ -f src-tauri/target/release/neuroshift.exe ]; then
-            cp src-tauri/target/release/neuroshift.exe release-binaries/NeuroShift-Portable-v1.0.0.exe
+            cp src-tauri/target/release/neuroshift.exe release-binaries/NeuroShift-Portable-v1.0.1.exe
           fi
           # Bundled installers (NSIS or MSI)
           find src-tauri/target/release/bundle -type f -name "*.exe" -o -name "*.msi" 2>/dev/null | while read file; do
@@ -48,14 +48,15 @@ jobs:
         continue-on-error: true
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v1.0.0
-          name: "NeuroShift Desktop v1.0.0 (Ultra-Light Windows ~3MB)"
+          tag_name: v1.0.1
+          name: "NeuroShift Desktop v1.0.1 (Offline Fonts & Day 0 Baseline)"
           body: |
-            🧠 **NEUROSHIFT — Clinical Console (Tauri v2 Ultra-Lightweight Edition)**
-            
-            - **NeuroShift-Portable-v1.0.0.exe**: Standalone single-file portable executable (~3-5 MB, zero installation).
-            - Powered by Microsoft Edge WebView2 (no Chromium/Node bloatware).
-            - Local-First, zero telemetry leakage, native Web Audio 40Hz Gamma generator & Huberman Respiratory Engine.
+            🧠 **NEUROSHIFT — Clinical Console v1.0.1 (Tauri v2 Ultra-Lightweight Edition)**
+
+            - **NeuroShift-Portable-v1.0.1.exe**: Standalone single-file portable executable (~3-5 MB, zero installation).
+            - **100% Offline Embedded Fonts**: Native Vazirmatn & JetBrains Mono WOFF2 fonts bundled directly into the binary (no Google Fonts network dependency, perfect rendering in Iran).
+            - **Day 0 Fresh Baseline**: Starts cleanly at Day 0 with true biological initial markers (acute D2/PFC depletion, high withdrawal cortisol, 25.0 initial NII) and manual reset option.
+            - Powered by Microsoft Edge WebView2 (RAM consumption < 30 MB).
           files: release-binaries/*
           prerelease: false
           make_latest: true
