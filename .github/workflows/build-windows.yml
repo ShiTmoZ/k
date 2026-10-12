@@ -29,7 +29,21 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Upload Artifacts
+      - name: Create or Update GitHub Release
+        continue-on-error: true
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v1.0.0
+          name: "NeuroShift Desktop v1.0.0 (Windows x64)"
+          body: "🧠 Official NeuroShift Clinical Console (Windows Portable & NSIS Installer)."
+          files: dist/*.exe
+          prerelease: false
+          make_latest: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload Artifacts (Fallback)
+        continue-on-error: true
         uses: actions/upload-artifact@v4
         with:
           name: NeuroShift-Windows-Executables
