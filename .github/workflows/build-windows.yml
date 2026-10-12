@@ -3,6 +3,9 @@ name: Build Windows Desktop App (Tauri v2 Ultra-Light)
 on:
   push:
     branches: [main, master]
+    paths-ignore:
+      - 'README.md'
+      - '.gitignore'
   workflow_dispatch:
 
 permissions:
