@@ -83,8 +83,20 @@
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   button, input, select, textarea {
-    font-family: inherit;
+    font-family: 'Vazirmatn', sans-serif;
   }
+  html, body {
+    font-family: 'Vazirmatn', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* CRITICAL: Never apply positive letter-spacing to Persian/Arabic cursive script */
+  :lang(fa), [dir="rtl"], button, input, select, textarea, .panel-label, .dop-btn, .phase-tab, .streak-sublabel, .legend-item, .emergency-badge, .settings-label, .bb-meta, .bb-tag, .footer-text, .nii-delta, .modal-title, .modal-subtitle, .modal-label, .modal-btn-primary, .modal-btn-cancel, .sigh-action, .sigh-instruction, .stroop-question, .stroop-choice, .stroop-feedback, .friction-title, .friction-sub, .audio-desc {
+    letter-spacing: normal !important;
+  }
+
 
   :root {
     --void: #030508;
@@ -308,12 +320,11 @@
   }
 
   .panel-label {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10px;
-    font-weight: 500;
-    letter-spacing: 0.14em;
+    font-family: 'Vazirmatn', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: normal !important;
     color: var(--text-muted);
-    text-transform: uppercase;
     margin-bottom: 12px;
     display: flex;
     align-items: center;
@@ -420,11 +431,11 @@
   }
 
   .streak-sublabel {
-    font-size: 11px;
+    font-size: 12px;
     color: var(--text-muted);
     text-align: center;
-    font-family: 'JetBrains Mono', monospace;
-    letter-spacing: 0.06em;
+    font-family: 'Vazirmatn', sans-serif;
+    letter-spacing: normal !important;
   }
 
   /* ── CIRCADIAN ── */
@@ -532,20 +543,27 @@
   }
 
   .dop-btn {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    padding: 6px 14px;
-    border-radius: 6px;
+    font-family: 'Vazirmatn', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 8px 16px;
+    border-radius: 8px;
     border: 1px solid var(--border);
     background: rgba(255,255,255,0.04);
     color: var(--text-secondary);
     cursor: pointer;
     transition: all 0.2s;
-    letter-spacing: 0.04em;
+    letter-spacing: normal !important;
+    line-height: 1.4;
   }
 
   .dop-btn:hover { background: rgba(255,255,255,0.08); color: var(--text-primary); }
-  .dop-btn.active { background: rgba(0,242,254,0.1); border-color: rgba(0,242,254,0.3); color: var(--cyan); }
+  .dop-btn.active { 
+    background: rgba(0,242,254,0.12); 
+    border-color: rgba(0,242,254,0.45); 
+    color: var(--cyan); 
+    box-shadow: 0 0 12px rgba(0,242,254,0.15);
+  }
 
   .dopamine-legend {
     display: flex;
@@ -558,9 +576,10 @@
     display: flex;
     align-items: center;
     gap: 6px;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10px;
+    font-family: 'Vazirmatn', sans-serif;
+    font-size: 12px;
     color: var(--text-muted);
+    letter-spacing: normal !important;
   }
 
   .legend-dot {
@@ -577,14 +596,15 @@
   }
 
   .emergency-badge {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10px;
-    padding: 3px 8px;
-    border-radius: 4px;
+    font-family: 'Vazirmatn', sans-serif;
+    font-size: 11px;
+    font-weight: 500;
+    padding: 4px 10px;
+    border-radius: 6px;
     background: rgba(244,63,94,0.15);
     border: 1px solid rgba(244,63,94,0.25);
     color: var(--rose);
-    letter-spacing: 0.08em;
+    letter-spacing: normal !important;
   }
 
   .phase-tabs {
@@ -594,15 +614,17 @@
   }
 
   .phase-tab {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    padding: 5px 12px;
-    border-radius: 6px;
+    font-family: 'Vazirmatn', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 7px 14px;
+    border-radius: 7px;
     border: 1px solid var(--border);
     background: none;
     color: var(--text-muted);
     cursor: pointer;
     transition: all 0.2s;
+    letter-spacing: normal !important;
   }
 
   .phase-tab.active {
@@ -680,7 +702,7 @@
     font-size: 48px;
     font-weight: 800;
     line-height: 1;
-    letter-spacing: -0.02em;
+    letter-spacing: normal !important;
     transition: all 0.2s;
   }
 
@@ -892,21 +914,21 @@
   }
 
   .bb-meta {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10px;
+    font-family: 'Vazirmatn', sans-serif;
+    font-size: 11px;
     color: var(--text-muted);
-    letter-spacing: 0.04em;
+    letter-spacing: normal !important;
   }
 
   .bb-tag {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 9px;
-    padding: 2px 6px;
-    border-radius: 3px;
+    font-family: 'Vazirmatn', sans-serif;
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 4px;
     flex-shrink: 0;
     align-self: flex-start;
     margin-top: 2px;
-    letter-spacing: 0.08em;
+    letter-spacing: normal !important;
   }
 
   .bb-tag.warn { background: rgba(245,158,11,0.12); color: var(--amber); }
@@ -950,10 +972,11 @@
   }
 
   .settings-label {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
+    font-family: 'Vazirmatn', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
     color: var(--text-muted);
-    letter-spacing: 0.1em;
+    letter-spacing: normal !important;
   }
 
   .settings-input {
@@ -1019,10 +1042,10 @@
   }
 
   .footer-text {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10px;
+    font-family: 'Vazirmatn', sans-serif;
+    font-size: 11px;
     color: var(--text-muted);
-    letter-spacing: 0.06em;
+    letter-spacing: normal !important;
   }
 
   .footer-version {
@@ -1081,6 +1104,29 @@
     nav { padding: 0 16px; }
     .nav-tabs { display: none; }
     .nii-score { font-size: 56px; }
+  }
+
+  
+  /* ── TETRIS CRAVING HIJACK MODULE ── */
+  .tetris-btn {
+    font-family: 'Vazirmatn', sans-serif;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid var(--border);
+    color: var(--text-primary);
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: all 0.15s;
+    user-select: none;
+  }
+  .tetris-btn:hover {
+    background: rgba(0,242,254,0.15);
+    border-color: rgba(0,242,254,0.4);
+    color: var(--cyan);
+  }
+  .tetris-btn:active {
+    transform: scale(0.95);
   }
 
   /* ── MODAL ── */
@@ -1218,7 +1264,7 @@
       </div>
       <div>
         <div class="brand-name">NEUROSHIFT</div>
-        <div class="brand-sub">Neural Integrity Console v2.4</div>
+        <div class="brand-sub">Neural Integrity Console v1.0.2</div>
       </div>
     </div>
 
@@ -1346,13 +1392,14 @@
       <div class="panel cell-emergency">
         <div class="emergency-header">
           <div class="panel-label" style="margin-bottom:0;flex:1">رهگیر اضطراری</div>
-          <div class="emergency-badge">3 فاز</div>
+          <div class="emergency-badge">۴ فاز</div>
         </div>
 
         <div class="phase-tabs">
           <button class="phase-tab active" onclick="switchPhase(1,this)">فاز ۱ — تنفس</button>
           <button class="phase-tab" onclick="switchPhase(2,this)">فاز ۲ — استروپ</button>
-          <button class="phase-tab" onclick="switchPhase(3,this)">فاز ۳ — اصطکاک</button>
+          <button class="phase-tab" onclick="switchPhase(3,this)">فاز ۳ — تتریس</button>
+          <button class="phase-tab" onclick="switchPhase(4,this)">فاز ۴ — اصطکاک</button>
         </div>
 
         <!-- Phase 1 -->
@@ -1386,7 +1433,30 @@
           <div class="stroop-score">امتیاز: <span id="stroop-score">0</span> | دقت: <span id="stroop-acc">—</span></div>
         </div>
 
-        <!-- Phase 3 -->
+                <!-- Phase 3: Tetris -->
+        <div id="tetris-game" style="display:none;flex-direction:column;align-items:center;gap:10px;width:100%;">
+          <div style="display:flex;justify-content:space-between;align-items:center;width:100%;font-size:12px;color:var(--text-secondary);">
+            <div style="font-family:'Vazirmatn',sans-serif;">زمان تسخیر ولع: <span id="tetris-timer-val" style="font-family:'JetBrains Mono',monospace;color:var(--cyan);font-weight:700;">03:00</span></div>
+            <div style="font-family:'Vazirmatn',sans-serif;">خطوط: <span id="tetris-lines-val" style="font-family:'JetBrains Mono',monospace;color:var(--emerald);font-weight:700;">0</span> | امتیاز: <span id="tetris-score-val" style="font-family:'JetBrains Mono',monospace;color:var(--text-primary);font-weight:700;">0</span></div>
+          </div>
+          <div style="position:relative;display:flex;justify-content:center;">
+            <canvas id="tetris-canvas-mini" width="180" height="300" style="background:#070a0f;border:1px solid var(--border);border-radius:8px;box-shadow:inset 0 0 15px rgba(0,0,0,0.8);"></canvas>
+            <div id="tetris-overlay-mini" style="position:absolute;inset:0;background:rgba(3,5,8,0.88);border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:12px;text-align:center;">
+              <div style="font-size:13px;font-weight:600;color:var(--cyan);">تتریس تسخیر دیداری-فضایی</div>
+              <div style="font-size:11px;color:var(--text-muted);line-height:1.4;">۳ دقیقه اشغال حافظه کاری دیداری جهت مسدودسازی ولع ذهنی</div>
+              <button class="modal-btn-primary" onclick="startTetris(false)" style="font-size:12px;padding:6px 16px;margin-top:6px;">شروع بازی (۳ دقیقه)</button>
+            </div>
+          </div>
+          <div class="tetris-controls-touch" style="display:flex;gap:6px;justify-content:center;width:100%;">
+            <button class="tetris-btn" onclick="handleTetrisInput('left')">◀</button>
+            <button class="tetris-btn" onclick="handleTetrisInput('rotate')">↻</button>
+            <button class="tetris-btn" onclick="handleTetrisInput('down')">▼</button>
+            <button class="tetris-btn" onclick="handleTetrisInput('right')">▶</button>
+            <button class="tetris-btn" onclick="handleTetrisInput('drop')">⏬</button>
+          </div>
+        </div>
+
+<!-- Phase 4 -->
         <div id="friction-phase">
           <div style="font-size:12px;color:var(--text-secondary);margin-bottom:10px;line-height:1.5">
             اصطکاک فیزیکی فوری: این اقدامات را یکی یکی انجام دهید تا محیط را تغییر دهید.
@@ -1551,8 +1621,55 @@
         </div>
       </div>
 
+      
       <div class="panel" style="grid-column: span 12;">
-        <div class="panel-label">پروتکل ۳ — ایجاد اصطکاک فیزیکی فوری (Environmental Friction)</div>
+        <div class="emergency-header">
+          <div class="panel-label" style="margin-bottom:0">پروتکل ۳ — تتریس تسخیر حافظه کاری دیداری (Visuospatial Craving Blocker)</div>
+          <div class="emergency-badge" style="background:rgba(0,242,254,0.12);border-color:rgba(0,242,254,0.3);color:var(--cyan)">کارآزمایی بالینی Addictive Behaviors (2015)</div>
+        </div>
+        <div style="display:grid;grid-template-columns: 1fr 280px;gap:24px;margin-top:14px;align-items:start;">
+          <div>
+            <div style="font-size:13px;color:var(--text-secondary);line-height:1.8;">
+              <p><strong style="color:var(--cyan)">مکانیسم عصب‌شناسی:</strong> ولع (Craving) یک فرایند تصویرسازی حسی دیداری-فضایی است. مغز در حالت وسوسه، تصاویر شفافی از رفتار اعتیادی در حافظه کاری دیداری (Visuospatial Sketchpad) می‌سازد.</p>
+              <br>
+              <p><strong style="color:var(--emerald)">اثر تتریس (Skorka-Brown et al.):</strong> از آنجا که پردازش اشکال متغیر تتریس نیازمند چرخش ذهنی سریع در لحظه است، تنها ۳ دقیقه بازی کردن، کل پهنای باند دیداری مغز را تسخیر می‌کند و توانایی تولید تصویر ذهنی ولع را مسدود می‌سازد. در آزمایش‌های بالینی، این پروتکل شدت ولع را بین <strong style="color:var(--emerald)">۱۵٪ تا ۲۴٪</strong> در محیط واقعی کاهش داد.</p>
+            </div>
+            <div style="margin-top:20px;padding:14px;background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:10px;">
+              <div style="font-size:12px;font-weight:600;color:var(--text-primary);margin-bottom:8px;">راهنمای کلیدها:</div>
+              <div style="display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--text-muted);">
+                <div><span style="color:var(--cyan)">کلیدهای جهت‌نما ← / →</span> : حرکت به طرفین</div>
+                <div><span style="color:var(--cyan)">کلید ↑ یا W</span> : چرخش مهره</div>
+                <div><span style="color:var(--cyan)">کلید ↓ یا S</span> : سرعت سقوط</div>
+                <div><span style="color:var(--cyan)">Space</span> : انداختن آنی (Hard Drop)</div>
+              </div>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:12px;">
+            <div style="display:flex;justify-content:space-between;width:100%;font-size:12px;">
+              <div style="font-family:'Vazirmatn',sans-serif;">زمان: <span id="tetris-timer-val-full" style="font-family:'JetBrains Mono',monospace;color:var(--cyan);font-weight:700;">03:00</span></div>
+              <div style="font-family:'Vazirmatn',sans-serif;">خطوط: <span id="tetris-lines-val-full" style="font-family:'JetBrains Mono',monospace;color:var(--emerald);font-weight:700;">0</span> | امتیاز: <span id="tetris-score-val-full" style="font-family:'JetBrains Mono',monospace;color:var(--text-primary);font-weight:700;">0</span></div>
+            </div>
+            <div style="position:relative;">
+              <canvas id="tetris-canvas-full" width="220" height="360" style="background:#070a0f;border:1px solid var(--border);border-radius:8px;box-shadow:inset 0 0 20px rgba(0,0,0,0.9);"></canvas>
+              <div id="tetris-overlay-full" style="position:absolute;inset:0;background:rgba(3,5,8,0.88);border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:16px;text-align:center;">
+                <div style="font-size:15px;font-weight:600;color:var(--cyan);">تتریس تسخیر شناختی</div>
+                <div style="font-size:12px;color:var(--text-muted);line-height:1.5;">پروتکل ۳ دقیقه‌ای مسدودسازی ولع</div>
+                <button class="modal-btn-primary" onclick="startTetris(true)" style="margin-top:8px;">شروع جلسه ۳ دقیقه‌ای</button>
+              </div>
+            </div>
+            <div class="tetris-controls-touch" style="display:flex;gap:6px;justify-content:center;width:100%;">
+              <button class="tetris-btn" onclick="handleTetrisInput('left')">◀</button>
+              <button class="tetris-btn" onclick="handleTetrisInput('rotate')">↻</button>
+              <button class="tetris-btn" onclick="handleTetrisInput('down')">▼</button>
+              <button class="tetris-btn" onclick="handleTetrisInput('right')">▶</button>
+              <button class="tetris-btn" onclick="handleTetrisInput('drop')">⏬</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel" style="grid-column: span 12;">
+        <div class="panel-label">پروتکل ۴ — ایجاد اصطکاک فیزیکی فوری (Environmental Friction)</div>
         <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:12px;margin-top:8px;">
           <div class="friction-action" onclick="toggleFrictionAction('lights', 'روشن کردن چراغ‌ها', this)">
             <div class="friction-icon amber-bg">☀</div>
@@ -2563,6 +2680,7 @@ function switchPhase(phase, btn) {
 
   const sigh = document.getElementById('sigh-pacer');
   const stroop = document.getElementById('stroop-game');
+  const tetris = document.getElementById('tetris-game');
   const friction = document.getElementById('friction-phase');
 
   if (sigh) sigh.style.display = phase === 1 ? 'flex' : 'none';
@@ -2570,7 +2688,13 @@ function switchPhase(phase, btn) {
     stroop.style.display = phase === 2 ? 'flex' : 'none';
     if (phase === 2) newStroopRound();
   }
-  if (friction) friction.style.display = phase === 3 ? 'flex' : 'none';
+  if (tetris) {
+    tetris.style.display = phase === 3 ? 'flex' : 'none';
+    if (phase === 3 && !tetrisRunning) {
+      renderTetrisBoards();
+    }
+  }
+  if (friction) friction.style.display = phase === 4 ? 'flex' : 'none';
 }
 
 function toggleFriction(el) {
@@ -2617,6 +2741,355 @@ window.addEventListener('resize', resizeDopamineCanvases);
 document.getElementById('log-modal').addEventListener('click', function(e) {
   if (e.target === this) closeModal();
 });
+
+// ═══════════════════════════════════════════
+// TETRIS VISUOSPATIAL CRAVING HIJACK ENGINE
+// ═══════════════════════════════════════════
+const TETRIS_COLS = 10;
+const TETRIS_ROWS = 20;
+let tetrisGrid = Array.from({ length: TETRIS_ROWS }, () => Array(TETRIS_COLS).fill(0));
+let tetrisRunning = false;
+let tetrisScore = 0;
+let tetrisLines = 0;
+let tetrisTimerSeconds = 180; // 3 minutes
+let tetrisTimerInterval = null;
+let tetrisDropInterval = null;
+let currentPiece = null;
+let currentPieceX = 3;
+let currentPieceY = 0;
+
+const TETRIS_SHAPES = [
+  { shape: [[1, 1, 1, 1]], color: '#00f2fe' }, // I
+  { shape: [[1, 0, 0], [1, 1, 1]], color: '#3b82f6' }, // J
+  { shape: [[0, 0, 1], [1, 1, 1]], color: '#f97316' }, // L
+  { shape: [[1, 1], [1, 1]], color: '#facc15' }, // O
+  { shape: [[0, 1, 1], [1, 1, 0]], color: '#05d5b3' }, // S
+  { shape: [[0, 1, 0], [1, 1, 1]], color: '#a855f7' }, // T
+  { shape: [[1, 1, 0], [0, 1, 1]], color: '#f43f5e' }  // Z
+];
+
+function playTetrisSound(type) {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    const now = ctx.currentTime;
+    if (type === 'move') {
+      osc.frequency.setValueAtTime(140, now);
+      gain.gain.setValueAtTime(0.04, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
+      osc.start(now);
+      osc.stop(now + 0.04);
+    } else if (type === 'rotate') {
+      osc.frequency.setValueAtTime(280, now);
+      gain.gain.setValueAtTime(0.05, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+      osc.start(now);
+      osc.stop(now + 0.05);
+    } else if (type === 'line') {
+      osc.frequency.setValueAtTime(440, now);
+      osc.frequency.exponentialRampToValueAtTime(880, now + 0.12);
+      gain.gain.setValueAtTime(0.08, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+      osc.start(now);
+      osc.stop(now + 0.12);
+    } else if (type === 'win') {
+      osc.frequency.setValueAtTime(523.25, now); // C5
+      osc.frequency.setValueAtTime(659.25, now + 0.1); // E5
+      osc.frequency.setValueAtTime(783.99, now + 0.2); // G5
+      gain.gain.setValueAtTime(0.1, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+      osc.start(now);
+      osc.stop(now + 0.4);
+    }
+  } catch (e) {}
+}
+
+function spawnPiece() {
+  const p = TETRIS_SHAPES[Math.floor(Math.random() * TETRIS_SHAPES.length)];
+  currentPiece = {
+    shape: p.shape.map(row => [...row]),
+    color: p.color
+  };
+  currentPieceX = Math.floor((TETRIS_COLS - currentPiece.shape[0].length) / 2);
+  currentPieceY = 0;
+
+  if (checkCollision(currentPiece.shape, currentPieceX, currentPieceY)) {
+    // Game over / Board reset
+    tetrisGrid = Array.from({ length: TETRIS_ROWS }, () => Array(TETRIS_COLS).fill(0));
+    currentPieceY = 0;
+  }
+}
+
+function checkCollision(shape, px, py) {
+  for (let r = 0; r < shape.length; r++) {
+    for (let c = 0; c < shape[r].length; c++) {
+      if (shape[r][c]) {
+        const nx = px + c;
+        const ny = py + r;
+        if (nx < 0 || nx >= TETRIS_COLS || ny >= TETRIS_ROWS) return true;
+        if (ny >= 0 && tetrisGrid[ny][nx]) return true;
+      }
+    }
+  }
+  return false;
+}
+
+function rotatePiece(shape) {
+  const rows = shape.length;
+  const cols = shape[0].length;
+  const rotated = Array.from({ length: cols }, () => Array(rows).fill(0));
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      rotated[c][rows - 1 - r] = shape[r][c];
+    }
+  }
+  return rotated;
+}
+
+function lockPiece() {
+  for (let r = 0; r < currentPiece.shape.length; r++) {
+    for (let c = 0; c < currentPiece.shape[r].length; c++) {
+      if (currentPiece.shape[r][c]) {
+        const ny = currentPieceY + r;
+        const nx = currentPieceX + c;
+        if (ny >= 0 && ny < TETRIS_ROWS && nx >= 0 && nx < TETRIS_COLS) {
+          tetrisGrid[ny][nx] = currentPiece.color;
+        }
+      }
+    }
+  }
+
+  // Clear full lines
+  let linesCleared = 0;
+  for (let r = TETRIS_ROWS - 1; r >= 0; r--) {
+    if (tetrisGrid[r].every(cell => cell !== 0)) {
+      tetrisGrid.splice(r, 1);
+      tetrisGrid.unshift(Array(TETRIS_COLS).fill(0));
+      linesCleared++;
+      r++; // Check same row index again
+    }
+  }
+
+  if (linesCleared > 0) {
+    tetrisLines += linesCleared;
+    tetrisScore += [0, 100, 300, 500, 800][linesCleared] || (linesCleared * 200);
+    playTetrisSound('line');
+    updateTetrisUI();
+  }
+
+  spawnPiece();
+}
+
+function updateTetrisUI() {
+  const timeFormatted = `${String(Math.floor(tetrisTimerSeconds / 60)).padStart(2, '0')}:${String(tetrisTimerSeconds % 60).padStart(2, '0')}`;
+  ['tetris-timer-val', 'tetris-timer-val-full'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = timeFormatted;
+  });
+  ['tetris-lines-val', 'tetris-lines-val-full'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = tetrisLines;
+  });
+  ['tetris-score-val', 'tetris-score-val-full'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = tetrisScore;
+  });
+}
+
+function renderTetrisToCanvas(canvas) {
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const w = canvas.width;
+  const h = canvas.height;
+  const cellW = w / TETRIS_COLS;
+  const cellH = h / TETRIS_ROWS;
+
+  // Background
+  ctx.fillStyle = '#06090e';
+  ctx.fillRect(0, 0, w, h);
+
+  // Subtle grid
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.03)';
+  ctx.lineWidth = 1;
+  for (let c = 0; c <= TETRIS_COLS; c++) {
+    ctx.beginPath();
+    ctx.moveTo(c * cellW, 0);
+    ctx.lineTo(c * cellW, h);
+    ctx.stroke();
+  }
+  for (let r = 0; r <= TETRIS_ROWS; r++) {
+    ctx.beginPath();
+    ctx.moveTo(0, r * cellH);
+    ctx.lineTo(w, r * cellH);
+    ctx.stroke();
+  }
+
+  // Draw placed cells
+  for (let r = 0; r < TETRIS_ROWS; r++) {
+    for (let c = 0; c < TETRIS_COLS; c++) {
+      if (tetrisGrid[r][c]) {
+        drawTetrisCell(ctx, c * cellW, r * cellH, cellW, cellH, tetrisGrid[r][c]);
+      }
+    }
+  }
+
+  // Draw current piece & ghost piece
+  if (currentPiece) {
+    // Ghost piece
+    let ghostY = currentPieceY;
+    while (!checkCollision(currentPiece.shape, currentPieceX, ghostY + 1)) {
+      ghostY++;
+    }
+    for (let r = 0; r < currentPiece.shape.length; r++) {
+      for (let c = 0; c < currentPiece.shape[r].length; c++) {
+        if (currentPiece.shape[r][c]) {
+          ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+          ctx.strokeRect((currentPieceX + c) * cellW + 1, (ghostY + r) * cellH + 1, cellW - 2, cellH - 2);
+        }
+      }
+    }
+
+    // Active piece
+    for (let r = 0; r < currentPiece.shape.length; r++) {
+      for (let c = 0; c < currentPiece.shape[r].length; c++) {
+        if (currentPiece.shape[r][c]) {
+          drawTetrisCell(ctx, (currentPieceX + c) * cellW, (currentPieceY + r) * cellH, cellW, cellH, currentPiece.color);
+        }
+      }
+    }
+  }
+}
+
+function drawTetrisCell(ctx, x, y, cw, ch, color) {
+  ctx.fillStyle = color;
+  ctx.fillRect(x + 1, y + 1, cw - 2, ch - 2);
+  // Highlight border for OLED look
+  ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(x + 1.5, y + 1.5, cw - 3, ch - 3);
+}
+
+function renderTetrisBoards() {
+  const mini = document.getElementById('tetris-canvas-mini');
+  const full = document.getElementById('tetris-canvas-full');
+  renderTetrisToCanvas(mini);
+  renderTetrisToCanvas(full);
+}
+
+function handleTetrisInput(action) {
+  if (!tetrisRunning || !currentPiece) return;
+  if (action === 'left') {
+    if (!checkCollision(currentPiece.shape, currentPieceX - 1, currentPieceY)) {
+      currentPieceX--;
+      playTetrisSound('move');
+    }
+  } else if (action === 'right') {
+    if (!checkCollision(currentPiece.shape, currentPieceX + 1, currentPieceY)) {
+      currentPieceX++;
+      playTetrisSound('move');
+    }
+  } else if (action === 'down') {
+    if (!checkCollision(currentPiece.shape, currentPieceX, currentPieceY + 1)) {
+      currentPieceY++;
+    } else {
+      lockPiece();
+    }
+  } else if (action === 'rotate') {
+    const rotated = rotatePiece(currentPiece.shape);
+    if (!checkCollision(rotated, currentPieceX, currentPieceY)) {
+      currentPiece.shape = rotated;
+      playTetrisSound('rotate');
+    } else if (!checkCollision(rotated, currentPieceX - 1, currentPieceY)) {
+      currentPieceX--;
+      currentPiece.shape = rotated;
+      playTetrisSound('rotate');
+    } else if (!checkCollision(rotated, currentPieceX + 1, currentPieceY)) {
+      currentPieceX++;
+      currentPiece.shape = rotated;
+      playTetrisSound('rotate');
+    }
+  } else if (action === 'drop') {
+    while (!checkCollision(currentPiece.shape, currentPieceX, currentPieceY + 1)) {
+      currentPieceY++;
+    }
+    lockPiece();
+    playTetrisSound('move');
+  }
+  renderTetrisBoards();
+}
+
+window.startTetris = function(isFull = false) {
+  tetrisGrid = Array.from({ length: TETRIS_ROWS }, () => Array(TETRIS_COLS).fill(0));
+  tetrisScore = 0;
+  tetrisLines = 0;
+  tetrisTimerSeconds = 180;
+  tetrisRunning = true;
+
+  document.getElementById('tetris-overlay-mini').style.display = 'none';
+  const overlayFull = document.getElementById('tetris-overlay-full');
+  if (overlayFull) overlayFull.style.display = 'none';
+
+  spawnPiece();
+  updateTetrisUI();
+  renderTetrisBoards();
+
+  if (tetrisDropInterval) clearInterval(tetrisDropInterval);
+  tetrisDropInterval = setInterval(() => {
+    if (!tetrisRunning) return;
+    if (!checkCollision(currentPiece.shape, currentPieceX, currentPieceY + 1)) {
+      currentPieceY++;
+    } else {
+      lockPiece();
+    }
+    renderTetrisBoards();
+  }, 750);
+
+  if (tetrisTimerInterval) clearInterval(tetrisTimerInterval);
+  tetrisTimerInterval = setInterval(() => {
+    if (!tetrisRunning) return;
+    tetrisTimerSeconds--;
+    updateTetrisUI();
+
+    if (tetrisTimerSeconds <= 0) {
+      clearInterval(tetrisTimerInterval);
+      clearInterval(tetrisDropInterval);
+      tetrisRunning = false;
+      playTetrisSound('win');
+      showToast('پروتکل ۳ دقیقه‌ای تتریس با موفقیت پایان یافت. منابع دیداری وسوسه خنثی شدند.', 'success');
+      
+      // Log neutralized urge incident
+      NeuroSync.logIncident('urge', 'خنثی‌سازی ولع با تتریس دیداری-فضایی (۳ دقیقه کامل)', 'موفق');
+
+      document.getElementById('tetris-overlay-mini').style.display = 'flex';
+      if (overlayFull) overlayFull.style.display = 'flex';
+    }
+  }, 1000);
+};
+
+// Keyboard listener for Tetris
+window.addEventListener('keydown', (e) => {
+  if (!tetrisRunning) return;
+  if (['ArrowLeft', 'KeyA'].includes(e.code)) {
+    e.preventDefault();
+    handleTetrisInput('left');
+  } else if (['ArrowRight', 'KeyD'].includes(e.code)) {
+    e.preventDefault();
+    handleTetrisInput('right');
+  } else if (['ArrowDown', 'KeyS'].includes(e.code)) {
+    e.preventDefault();
+    handleTetrisInput('down');
+  } else if (['ArrowUp', 'KeyW'].includes(e.code)) {
+    e.preventDefault();
+    handleTetrisInput('rotate');
+  } else if (e.code === 'Space') {
+    e.preventDefault();
+    handleTetrisInput('drop');
+  }
+});
+
 </script>
 </body>
 </html>

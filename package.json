@@ -1,6 +1,6 @@
 {
   "name": "neuroshift",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "NEUROSHIFT — Cognitive Rewiring & Neural Integrity Clinical Console",
   "main": "main.js",
   "scripts": {
