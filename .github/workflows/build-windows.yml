@@ -36,7 +36,7 @@ jobs:
           mkdir -p release-binaries
           # Standalone lightweight portable executable (~3-5 MB)
           if [ -f src-tauri/target/release/neuroshift.exe ]; then
-            cp src-tauri/target/release/neuroshift.exe release-binaries/NeuroShift-Portable-v1.0.2.exe
+            cp src-tauri/target/release/neuroshift.exe release-binaries/NeuroShift-Portable-v1.0.3.exe
           fi
           # Bundled installers (NSIS or MSI)
           find src-tauri/target/release/bundle -type f -name "*.exe" -o -name "*.msi" 2>/dev/null | while read file; do
@@ -48,16 +48,17 @@ jobs:
         continue-on-error: true
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v1.0.2
-          name: "NeuroShift Desktop v1.0.2 (Tetris Hijack & Perfect Persian Fonts)"
+          tag_name: v1.0.3
+          name: "NeuroShift Desktop v1.0.3 (Pure Zero Baseline & Reactive Telemetry)"
           body: |
-            🧠 **NEUROSHIFT — Clinical Console v1.0.2 (Tauri v2 Ultra-Lightweight Edition)**
+            🧠 **NEUROSHIFT — Clinical Console v1.0.3 (Tauri v2 Ultra-Lightweight Edition)**
 
-            - **NeuroShift-Portable-v1.0.2.exe**: Standalone single-file portable executable (~8 MB, zero installation).
-            - **Cognitive Hijack Tetris Protocol**: 3-minute visuospatial working memory blocker based on Skorka-Brown et al. (2015, *Addictive Behaviors*) to neutralize acute cravings without willpower fatigue. Includes sound synthesis and automatic incident logging.
-            - **Perfect Persian Typography**: Removed harmful `letter-spacing` from cursive Arabic/Persian elements (`.dop-btn`, labels, tabs), increased button padding, and enforced local Vazirmatn rendering.
-            - **Day 0 Fresh Baseline**: Starts cleanly at Day 0 with true biological initial markers (acute D2/PFC depletion, high withdrawal cortisol, 25.0 initial NII).
-            - Powered by Microsoft Edge WebView2 (RAM consumption < 30 MB).
+            - **NeuroShift-Portable-v1.0.3.exe**: Standalone single-file portable executable (~8.5 MB, zero installation).
+            - **100% Pure Day 0 Baseline**: Purged all pre-seeded mock incidents from the Black Box (empty white flight journal).
+            - **Reactive Dynamic Circadian Map**: Replaced hardcoded risk bars with a dynamic engine that remains at a 0% safe baseline until the user logs real incidents.
+            - **Neurobiological Mathematical Grounding**: Receptor status (D2 34%, PFC 38%) and NII explicitly labeled as theoretical Day 0 baseline estimates based on Volkow & Nestler literature.
+            - **Tetris Craving Hijack Module**: 3-minute visuospatial craving interruptor with sound effects.
+            - **Native Vazirmatn Typography**: 100% offline Persian font rendering without letter-spacing glitches.
           files: release-binaries/*
           prerelease: false
           make_latest: true

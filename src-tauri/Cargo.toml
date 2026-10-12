@@ -1,6 +1,6 @@
 [package]
 name = "neuroshift"
-version = "1.0.2"
+version = "1.0.3"
 description = "NeuroShift — Neural Integrity Console"
 authors = ["ShiTmoZ"]
 license = "MIT"

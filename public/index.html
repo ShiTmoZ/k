@@ -1324,34 +1324,43 @@
 
       <!-- Circadian Risk -->
       <div class="panel cell-circadian">
-        <div class="panel-label">نقشه ریسک شبانه‌روزی</div>
-        <div class="circadian-timeline">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+          <div class="panel-label" style="margin-bottom:0">نقشه ریسک شبانه‌روزی</div>
+          <div id="circadian-badge" style="font-size:10px;padding:2px 8px;border-radius:4px;background:rgba(255,255,255,0.05);color:var(--text-muted);border:1px solid var(--border);">کالیبراسیون اولیه</div>
+        </div>
+        <div class="circadian-timeline" id="circadian-timeline-bars">
           <div class="circadian-row">
             <span class="circ-label">۰۰–۰۶</span>
-            <div class="circ-bar-track"><div class="circ-bar-fill risk-high" style="width:82%"></div></div>
-            <span class="circ-risk" style="color:var(--rose)">بالا</span>
+            <div class="circ-bar-track"><div class="circ-bar-fill" id="circ-fill-0" style="width:0%"></div></div>
+            <span class="circ-risk" id="circ-text-0" style="color:var(--text-muted)">۰٪</span>
           </div>
           <div class="circadian-row">
             <span class="circ-label">۰۶–۱۲</span>
-            <div class="circ-bar-track"><div class="circ-bar-fill risk-low" style="width:22%"></div></div>
-            <span class="circ-risk" style="color:var(--emerald)">پایین</span>
+            <div class="circ-bar-track"><div class="circ-bar-fill" id="circ-fill-1" style="width:0%"></div></div>
+            <span class="circ-risk" id="circ-text-1" style="color:var(--text-muted)">۰٪</span>
           </div>
           <div class="circadian-row">
             <span class="circ-label">۱۲–۱۸</span>
-            <div class="circ-bar-track"><div class="circ-bar-fill risk-medium" style="width:45%"></div></div>
-            <span class="circ-risk" style="color:var(--amber)">متوسط</span>
+            <div class="circ-bar-track"><div class="circ-bar-fill" id="circ-fill-2" style="width:0%"></div></div>
+            <span class="circ-risk" id="circ-text-2" style="color:var(--text-muted)">۰٪</span>
           </div>
           <div class="circadian-row">
             <span class="circ-label">۱۸–۲۴</span>
-            <div class="circ-bar-track"><div class="circ-bar-fill risk-high" style="width:71%"></div></div>
-            <span class="circ-risk" style="color:var(--rose)">بالا</span>
+            <div class="circ-bar-track"><div class="circ-bar-fill" id="circ-fill-3" style="width:0%"></div></div>
+            <span class="circ-risk" id="circ-text-3" style="color:var(--text-muted)">۰٪</span>
           </div>
+        </div>
+        <div id="circadian-note" style="font-size:11px;color:var(--text-muted);margin-top:10px;text-align:center;line-height:1.4;">
+          بدون رویداد ثبت‌شده — تمام بازه‌ها در حالت ایمن خط پایه
         </div>
       </div>
 
       <!-- D2 Receptor Status -->
       <div class="panel cell-receptor">
-        <div class="panel-label">وضعیت گیرنده‌ها</div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+          <div class="panel-label" style="margin-bottom:0">وضعیت گیرنده‌ها</div>
+          <span style="font-size:10px;color:var(--cyan);background:rgba(0,242,254,0.08);padding:2px 8px;border-radius:4px;border:1px solid rgba(0,242,254,0.2);">تخمین مدل ریاضی روز ۰</span>
+        </div>
         <div class="receptor-grid">
           <div class="receptor-cell">
             <div class="receptor-name">D2 Receptor</div>
@@ -1490,34 +1499,18 @@
 
       <!-- Black Box -->
       <div class="panel cell-blackbox">
-        <div class="panel-label">جعبه سیاه — تلمتری حوادث</div>
-        <div class="blackbox-list">
-          <div class="bb-entry" tabindex="0">
-            <div class="bb-icon amber-bg">⚠</div>
-            <div class="bb-content">
-              <div class="bb-title">شکاف اصطکاک شناسایی شد</div>
-              <div class="bb-meta">دیشب ۰۲:۱۷  ·  شنبه ۱۴۰۳/۷/۲۰</div>
-            </div>
-            <div class="bb-tag warn">FRICTION</div>
-          </div>
-          <div class="bb-entry" tabindex="0">
-            <div class="bb-icon cyan-bg">◆</div>
-            <div class="bb-content">
-              <div class="bb-title">الگوی شبانه‌روزی — ۰۰:۰۰–۰۳:۰۰ منطقه قرمز</div>
-              <div class="bb-meta">تحلیل ۳۰ روز گذشته  ·  ۴ مورد در این بازه</div>
-            </div>
-            <div class="bb-tag info">PATTERN</div>
-          </div>
-          <div class="bb-entry" tabindex="0">
-            <div class="bb-icon rose-bg">▲</div>
-            <div class="bb-content">
-              <div class="bb-title">اشباع کورتیزول — ۱۸٪ بالاتر از پایه</div>
-              <div class="bb-meta">دوشنبه  ·  استرس کاری پیش‌بینی شد به عنوان عامل</div>
-            </div>
-            <div class="bb-tag crit">CORTISOL</div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+          <div class="panel-label" style="margin-bottom:0">جعبه سیاه — تلمتری حوادث</div>
+          <span style="font-size:10px;color:var(--emerald);background:rgba(5,213,179,0.1);padding:2px 8px;border-radius:4px;border:1px solid rgba(5,213,179,0.25);">دفتر سفید</span>
+        </div>
+        <div class="blackbox-list" id="blackbox-mini-list">
+          <div class="bb-empty-state" style="text-align:center;padding:26px 12px;color:var(--text-muted);font-size:12px;line-height:1.6;">
+            <div style="font-size:22px;margin-bottom:6px;opacity:0.5;">📋</div>
+            <div style="color:var(--text-primary);font-weight:600;margin-bottom:2px;">دفتر ثبت وقایع کاملاً سفید است</div>
+            <span style="font-size:11px;color:var(--text-secondary);">هیچ رخداد، لغزش یا نقصی ثبت نشده است (خط پایه روز ۰)</span>
           </div>
         </div>
-        <button class="log-btn" onclick="openModal()">ثبت رویداد جدید</button>
+        <button class="log-btn" onclick="openModal()">+ ثبت رویداد جدید</button>
       </div>
 
       <!-- Audio Engine -->
@@ -1710,7 +1703,11 @@
           ثبت بدون سرزنش (Blameless Post-Mortem) مشابه سوانح هوایی. هدف پیدا کردن نقص‌های زنجیره اصطکاک است نه ارزیابی اخلاقی.
         </div>
         <div class="blackbox-list" id="blackbox-full-list">
-          <!-- Populated dynamically from API -->
+          <div class="bb-empty-state" style="text-align:center;padding:48px 16px;color:var(--text-muted);font-size:13px;line-height:1.7;">
+            <div style="font-size:32px;margin-bottom:10px;opacity:0.4;">📋</div>
+            <div style="color:var(--text-primary);font-weight:600;font-size:15px;margin-bottom:4px;">دفتر وقایع جعبه سیاه کاملاً پاک و سفید است</div>
+            <span style="font-size:12px;color:var(--text-secondary);">رویکرد هوانوردی بدون سرزنش (Blameless Post-Mortem): با ثبت رویدادها، نقص‌های زنجیره اصطکاک مستند و الگوهای شخصی استخراج می‌شوند.</span>
+          </div>
         </div>
       </div>
 
@@ -1962,8 +1959,30 @@ const NeuroSync = {
   },
 
   renderIncidents() {
-    const listMini = document.querySelector('.blackbox-list');
+    const listMini = document.getElementById('blackbox-mini-list') || document.querySelector('.blackbox-list');
     const listFull = document.getElementById('blackbox-full-list');
+
+    if (!this.incidents || this.incidents.length === 0) {
+      const emptyMini = `
+        <div class="bb-empty-state" style="text-align:center;padding:26px 12px;color:var(--text-muted);font-size:12px;line-height:1.6;">
+          <div style="font-size:22px;margin-bottom:6px;opacity:0.5;">📋</div>
+          <div style="color:var(--text-primary);font-weight:600;margin-bottom:2px;">دفتر ثبت وقایع کاملاً سفید است</div>
+          <span style="font-size:11px;color:var(--text-secondary);">هیچ رخداد یا لغزشی ثبت نشده است (خط پایه روز ۰)</span>
+        </div>
+      `;
+      const emptyFull = `
+        <div class="bb-empty-state" style="text-align:center;padding:48px 16px;color:var(--text-muted);font-size:13px;line-height:1.7;">
+          <div style="font-size:32px;margin-bottom:10px;opacity:0.4;">📋</div>
+          <div style="color:var(--text-primary);font-weight:600;font-size:15px;margin-bottom:4px;">دفتر وقایع جعبه سیاه کاملاً پاک و سفید است</div>
+          <span style="font-size:12px;color:var(--text-secondary);">رویکرد هوانوردی بدون سرزنش (Blameless Post-Mortem): با ثبت رویدادها، نقص‌های زنجیره اصطکاک مستند و الگوهای شخصی استخراج می‌شوند.</span>
+        </div>
+      `;
+      if (listMini) listMini.innerHTML = emptyMini;
+      if (listFull) listFull.innerHTML = emptyFull;
+      this.updateCircadianMap();
+      return;
+    }
+
     const itemsHtml = this.incidents.slice(0, 8).map(inc => {
       let icon = '◆';
       let iconClass = 'cyan-bg';
@@ -1986,6 +2005,78 @@ const NeuroSync = {
 
     if (listMini) listMini.innerHTML = itemsHtml;
     if (listFull) listFull.innerHTML = itemsHtml;
+    this.updateCircadianMap();
+  },
+
+  updateCircadianMap() {
+    const slots = [
+      { name: '۰۰–۰۶', count: 0, fillId: 'circ-fill-0', textId: 'circ-text-0' },
+      { name: '۰۶–۱۲', count: 0, fillId: 'circ-fill-1', textId: 'circ-text-1' },
+      { name: '۱۲–۱۸', count: 0, fillId: 'circ-fill-2', textId: 'circ-text-2' },
+      { name: '۱۸–۲۴', count: 0, fillId: 'circ-fill-3', textId: 'circ-text-3' }
+    ];
+
+    const total = this.incidents.length;
+    const badge = document.getElementById('circadian-badge');
+    const note = document.getElementById('circadian-note');
+
+    if (total === 0) {
+      if (badge) {
+        badge.textContent = 'خط پایه روز ۰';
+        badge.style.color = 'var(--emerald)';
+        badge.style.background = 'rgba(5,213,179,0.1)';
+        badge.style.borderColor = 'rgba(5,213,179,0.3)';
+      }
+      if (note) {
+        note.textContent = 'بدون رخداد ثبت‌شده — تمام ساعات شبانه‌روزی در وضعیت ایمن و پاک قرار دارند.';
+        note.style.color = 'var(--text-muted)';
+      }
+      slots.forEach(s => {
+        const fill = document.getElementById(s.fillId);
+        const txt = document.getElementById(s.textId);
+        if (fill) { fill.style.width = '0%'; fill.className = 'circ-bar-fill'; }
+        if (txt) { txt.textContent = '۰٪'; txt.style.color = 'var(--text-muted)'; }
+      });
+      return;
+    }
+
+    // Tally real incidents
+    this.incidents.forEach(inc => {
+      const ts = inc.timeSlot || '';
+      const hour = new Date(inc.timestamp).getHours();
+      if (ts.includes('00:00') || ts.includes('۰۰–۰۶') || (hour >= 0 && hour < 6)) slots[0].count++;
+      else if (ts.includes('06:00') || ts.includes('۰۶–۱۲') || (hour >= 6 && hour < 12)) slots[1].count++;
+      else if (ts.includes('12:00') || ts.includes('۱۲–۱۸') || (hour >= 12 && hour < 18)) slots[2].count++;
+      else slots[3].count++;
+    });
+
+    if (badge) {
+      badge.textContent = `${total} رخداد تحلیل‌شده`;
+      badge.style.color = 'var(--cyan)';
+      badge.style.background = 'rgba(0,242,254,0.1)';
+      badge.style.borderColor = 'rgba(0,242,254,0.3)';
+    }
+
+    let maxSlot = slots[0];
+    slots.forEach(s => {
+      const ratio = Math.round((s.count / total) * 100);
+      const fill = document.getElementById(s.fillId);
+      const txt = document.getElementById(s.textId);
+      if (fill) {
+        fill.style.width = `${ratio}%`;
+        fill.className = 'circ-bar-fill ' + (ratio >= 50 ? 'risk-high' : ratio >= 25 ? 'risk-medium' : 'risk-low');
+      }
+      if (txt) {
+        txt.textContent = `${ratio}٪`;
+        txt.style.color = ratio >= 50 ? 'var(--rose)' : ratio >= 25 ? 'var(--amber)' : 'var(--emerald)';
+      }
+      if (s.count > maxSlot.count) maxSlot = s;
+    });
+
+    if (note) {
+      note.textContent = `تحلیل اختصاصی شما: بیشترین آسیب‌پذیری رفتاری در ساعات ${maxSlot.name} با فراوانی ${Math.round((maxSlot.count / total) * 100)}٪ ثبت شد.`;
+      note.style.color = 'var(--amber)';
+    }
   },
 
   async submitLog(timeSlot, trigger) {
